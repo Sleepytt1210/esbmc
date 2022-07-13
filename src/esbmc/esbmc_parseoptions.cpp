@@ -48,6 +48,7 @@ extern "C"
 #include <goto-programs/show_claims.h>
 #include <goto-programs/loop_unroll.h>
 #include <goto-programs/mark_decl_as_non_det.h>
+#include <goto-programs/goto_mutation.h>
 #include <util/irep.h>
 #include <langapi/languages.h>
 #include <langapi/mode.h>
@@ -1693,6 +1694,16 @@ bool esbmc_parseoptionst::process_goto_program(
       if(write_goto_binary(oss, context, goto_functions))
       {
         msg.error("fail to generate goto binary file");
+        abort();
+      };
+      return true;
+    }
+
+    if(cmdline.isset("goto-fuzz"))
+    {
+      if(mutationt::mutateSequence(goto_functions,msg))
+      {
+        msg.error("fail to mutate sequential structure");
         abort();
       };
       return true;

@@ -1567,6 +1567,12 @@ bool esbmc_parseoptionst::read_goto_binary(goto_functionst &goto_functions)
   return false;
 }
 
+void esbmc_parseoptionst::setFuzz(const uint8_t *Data, size_t Size)
+{
+  this->Data = (uint8_t *)Data;
+  this->Size = Size;
+}
+
 bool esbmc_parseoptionst::process_goto_program(
   optionst &options,
   goto_functionst &goto_functions)
@@ -1701,7 +1707,8 @@ bool esbmc_parseoptionst::process_goto_program(
 
     if(cmdline.isset("goto-fuzz"))
     {
-      if(mutationt::mutateSequence(goto_functions,msg))
+      mutationt x(this->Data,this->Size);
+      if(x.mutateSequence(goto_functions, msg))
       {
         msg.error("fail to mutate sequential structure");
         abort();

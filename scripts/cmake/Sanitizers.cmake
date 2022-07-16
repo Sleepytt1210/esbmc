@@ -4,11 +4,11 @@
 
 if(CMAKE_BUILD_TYPE STREQUAL "Sanitizer")
     message(STATUS "Sanitizer Mode")
-    set(SANITIZER_TYPE "ASAN" CACHE
+    set(SANITIZER_TYPE "FUZZ" CACHE
             STRING "Choose the sanitizer to use.")
 
     set_property(CACHE SANITIZER_TYPE PROPERTY STRINGS
-            "TSAN" "ASAN" "LSAN" "MSAN" "UBSAN")
+            "TSAN" "ASAN" "LSAN" "MSAN" "UBSAN" "FUZZ")
     
     # ThreadSanitizer
     set(TSAN_FLAGS "-fsanitize=thread -g -O1")
@@ -20,6 +20,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Sanitizer")
     set(MSAN_FLAGS "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2")
     # UndefinedBehaviour
     set(UBSAN_FLAGS "-fsanitize=undefined -fno-sanitize=vptr")
+    # Link Libfuzzer as libary
+    set(FUZZ_FLAGS "-fsanitize=fuzzer-no-link")
 
     set(CMAKE_C_FLAGS_SANITIZER
             "${${SANITIZER_TYPE}_FLAGS}" CACHE

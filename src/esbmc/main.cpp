@@ -24,9 +24,25 @@ Author: Lucas Cordeiro, lcc08r@ecs.soton.ac.uk
 #include <util/message/default_message.h>
 #include <irep2/irep2.h>
 
-int main(int argc, const char **argv)
+extern "C" int LLVMFuzzerRunDriver(
+  int *argc,
+  char ***argv,
+  int (*UserCb)(const uint8_t *Data, size_t Size, int argc, const char **argv));
+
+extern "C" int LLVMFuzzerTestOneInput(
+  const uint8_t *Data,
+  size_t Size,
+  int argc,
+  const char **argv)
 {
   messaget msg;
   esbmc_parseoptionst parseoptions(argc, argv, msg);
+  parseoptions.setFuzz(Data, Size);
   return parseoptions.main();
+}
+
+int main(int argc, const char **argv)
+{
+  char **aargv = (char **)argv;
+  LLVMFuzzerRunDriver(&argc, &aargv, LLVMFuzzerTestOneInput);
 }

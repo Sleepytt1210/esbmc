@@ -36,6 +36,8 @@ public:
     if(out != err)
       close_file(err);
   }
+  
+  void setFuzz(const uint8_t *Data, size_t Size);
 
 protected:
   virtual void get_command_line_options(optionst &options);
@@ -85,6 +87,7 @@ protected:
   FILE *out = stdout;
   FILE *err = stderr;
 
+
 private:
   void close_file(FILE *f)
   {
@@ -96,6 +99,8 @@ private:
 
 public:
   goto_functionst goto_functions;
+  uint8_t* Data;
+  size_t Size;
 };
 
 #endif

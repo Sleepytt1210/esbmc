@@ -74,6 +74,10 @@ extern "C"
 #endif
 
 #include <util/message/default_message.h>
+#include <random>
+
+using u32 = uint_least32_t;
+using engine = std::mt19937;
 
 enum PROCESS_TYPE
 {
@@ -1707,13 +1711,28 @@ bool esbmc_parseoptionst::process_goto_program(
 
     if(cmdline.isset("goto-fuzz"))
     {
-      mutationt x(this->Data,this->Size);
-      if(x.mutateSequence(goto_functions, msg))
+      uint8_t data[100];
+      std::random_device os_seed;
+      const u32 seed = os_seed();
+
+      engine generator(seed);
+      std::uniform_int_distribution<u32> distribute(1, 100);
+      for(auto d : data)
       {
-        msg.error("fail to mutate sequential structure");
+        d = uint8_t(distribute(generator));
+      }
+      goto_mutationt x(data, 100, goto_functions);
+      if(x.mutateNonSequence(msg))
+      {
+        msg.error("fail to mutate non-sequential structure.");
         abort();
-      };
-      return true;
+      }
+      if(x.mutateSequence(msg))
+      {
+        msg.error("fail to mutate sequential structure.");
+        abort();
+      }
+      // return true;
     }
 
     // show it?

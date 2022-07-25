@@ -38,6 +38,8 @@ public:
   }
   
   void setFuzz(const uint8_t *Data, size_t Size);
+  
+  int doint_fuzz();
 
 protected:
   virtual void get_command_line_options(optionst &options);

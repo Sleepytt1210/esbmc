@@ -81,7 +81,7 @@ public:
   inline irept &operator=(const irept &irep)
   {
     dt *tmp;
-    assert(&irep != this); // check if we assign to ourselves
+    // assert(&irep != this); // check if we assign to ourselves
     tmp = data;
     data = irep.data;
     if(data != nullptr)

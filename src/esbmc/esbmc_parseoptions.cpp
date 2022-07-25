@@ -513,6 +513,14 @@ int esbmc_parseoptionst::doit()
   return do_bmc(bmc);
 }
 
+int esbmc_parseoptionst::doint_fuzz()
+{
+  optionst opts;
+  bmct bmc(goto_functions, opts, context, msg);
+
+  return do_bmc(bmc);
+}
+
 int esbmc_parseoptionst::doit_k_induction_parallel()
 {
 #ifdef _WIN32

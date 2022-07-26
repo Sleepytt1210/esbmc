@@ -1,21 +1,12 @@
 #include <goto-programs/goto_mutation.h>
 
-void goto_mutationt::output(
-  goto_programt &mmain,
-  std::ostringstream &os,
-  messaget &msg)
-{
-  forall_goto_program_instructions(it, mmain)
-  {
-    (*it).output_instruction(
-      *migrate_namespace_lookup, "c:@F@main", os, msg, false);
-  }
-}
 
 void goto_mutationt::getMain(goto_functionst::function_mapt::iterator &m_it)
 {
   m_it = func.function_map.find("c:@F@main");
 }
+
+
 
 bool goto_mutationt::hasSeeds()
 {
@@ -106,27 +97,4 @@ bool goto_mutationt::mutateNonSequence(messaget &msg)
 
   msg.status(os.str());
   return false;
-}
-
-bool goto_mutationt::mutateValue(messaget &msg)
-{
-  std::ostringstream os;
-  goto_functionst::function_mapt::iterator m_it;
-  getMain(m_it);
-
-  if(m_it != func.function_map.end())
-  {
-    goto_programt &mmain = m_it->second.body;
-    int program_len = mmain.instructions.size();
-
-    if(!hasSeeds())
-    {
-      setSeeds(mmain);
-    }
-    std::vector<goto_programt::instructiont::targett> exprts;
-    Forall_goto_program_instructions(it, mmain)
-    {
-      ;
-    }
-  }
 }

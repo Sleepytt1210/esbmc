@@ -1,5 +1,6 @@
 #include <goto-programs/goto_functions.h>
 #include <goto-programs/goto_program.h>
+#include <util/context.h>
 #include <stdint.h>
 #include <vector>
 
@@ -13,13 +14,26 @@ public:
     this->func = func;
     this->seeds = NULL;
   }
-  bool mutateValue(messaget &msg);
   bool mutateSequence(messaget &msg);
   bool mutateNonSequence(messaget &msg);
   void getMain(goto_functionst::function_mapt::iterator &m_it);
+  static void
+  getMain(goto_functionst::function_mapt::iterator &m_it, goto_functionst func)
+  {
+    m_it = func.function_map.find("c:@F@main");
+  }
+
   void setSeeds(goto_programt &mmain);
   bool hasSeeds();
-  void output(goto_programt &mmain, std::ostringstream &os, messaget &msg);
+  static void
+  output(goto_programt &mmain, std::ostringstream &os, messaget &msg)
+  {
+    forall_goto_program_instructions(it, mmain)
+    {
+      (*it).output_instruction(
+        *migrate_namespace_lookup, "c:@F@main", os, msg, false);
+    }
+  }
 
 private:
   uint8_t *Data;

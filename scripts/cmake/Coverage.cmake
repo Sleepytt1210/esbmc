@@ -1,5 +1,5 @@
 if(ENABLE_COVERAGE)
-    if(CMAKE_COMPILER_IS_GNUCXX)        
+    if(NOT CMAKE_COMPILER_IS_GNUCXX)        
         if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
             message(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
         endif()

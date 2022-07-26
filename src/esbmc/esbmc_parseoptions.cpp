@@ -1719,28 +1719,26 @@ bool esbmc_parseoptionst::process_goto_program(
 
     if(cmdline.isset("goto-fuzz"))
     {
-      uint8_t data[100];
-      std::random_device os_seed;
-      const u32 seed = os_seed();
-
-      engine generator(seed);
-      std::uniform_int_distribution<u32> distribute(1, 100);
-      for(auto d : data)
+      std::ostringstream os;
+      goto_functionst::function_mapt::iterator m_it;
+      goto_mutationt::getMain(m_it, goto_functions);
+      os << "Show mutated value. \n";
+      if(m_it != goto_functions.function_map.end())
       {
-        d = uint8_t(distribute(generator));
+        goto_programt &mmain = m_it->second.body;
+        context.Foreach_operand(
+          [](symbolt &s)
+          {
+            if(s.value.is_constant())
+            {
+              s.value.clear();
+            }
+          });
+        os << "Show mutated value. \n";
+        goto_mutationt::output(mmain, os, msg);
       }
-      goto_mutationt x(data, 100, goto_functions);
-      if(x.mutateNonSequence(msg))
-      {
-        msg.error("fail to mutate non-sequential structure.");
-        abort();
-      }
-      if(x.mutateSequence(msg))
-      {
-        msg.error("fail to mutate sequential structure.");
-        abort();
-      }
-      // return true;
+      msg.status(os.str());
+      return true;
     }
 
     // show it?

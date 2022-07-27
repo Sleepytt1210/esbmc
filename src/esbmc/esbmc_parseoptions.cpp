@@ -513,9 +513,33 @@ int esbmc_parseoptionst::doit()
   return do_bmc(bmc);
 }
 
-int esbmc_parseoptionst::doint_fuzz()
+int esbmc_parseoptionst::doit_fuzz()
 {
+  // std::fstream oss("fuzz.goto");
+  // if(write_goto_binary(oss, context, goto_functions))
+  // {
+  //   msg.error("fail to generate goto binary file");
+  //   abort();
+  // };
+
+  if(cmdline.isset("termination"))
+    return doit_termination();
+
+  if(cmdline.isset("incremental-bmc"))
+    return doit_incremental();
+
+  if(cmdline.isset("falsification"))
+    return doit_falsification();
+
+  if(cmdline.isset("k-induction"))
+    return doit_k_induction();
+
+  if(cmdline.isset("k-induction-parallel"))
+    return doit_k_induction_parallel();
+
   optionst opts;
+  get_command_line_options(opts);
+
   bmct bmc(goto_functions, opts, context, msg);
 
   return do_bmc(bmc);
@@ -1719,25 +1743,25 @@ bool esbmc_parseoptionst::process_goto_program(
 
     if(cmdline.isset("goto-fuzz"))
     {
-      std::ostringstream os;
-      goto_functionst::function_mapt::iterator m_it;
-      goto_mutationt::getMain(m_it, goto_functions);
-      os << "Show mutated value. \n";
-      if(m_it != goto_functions.function_map.end())
-      {
-        goto_programt &mmain = m_it->second.body;
-        context.Foreach_operand(
-          [](symbolt &s)
-          {
-            if(s.value.is_constant())
-            {
-              s.value.clear();
-            }
-          });
-        os << "Show mutated value. \n";
-        goto_mutationt::output(mmain, os, msg);
-      }
-      msg.status(os.str());
+      // std::ostringstream os;
+      // goto_functionst::function_mapt::iterator m_it;
+      // goto_mutationt::getMain(m_it, goto_functions);
+      // os << "Show mutated value. \n";
+      // if(m_it != goto_functions.function_map.end())
+      // {
+      //   goto_programt &mmain = m_it->second.body;
+      //   context.Foreach_operand(
+      //     [](symbolt &s)
+      //     {
+      //       if(s.value.is_constant())
+      //       {
+      //         s.value.clear();
+      //       }
+      //     });
+      //   os << "Show mutated value. \n";
+      //   goto_mutationt::output(mmain, os, msg);
+      // }
+      // msg.status(os.str());
       return true;
     }
 

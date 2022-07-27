@@ -30,19 +30,6 @@ Author: Lucas Cordeiro, lcc08r@ecs.soton.ac.uk
 static esbmc_parseoptionst *ptr = NULL;
 static goto_functionst func;
 
-
-// bool VulnerableFunction1(const uint8_t *data, size_t size)
-// {
-//   bool result = false;
-//   if(size >= 3)
-//   {
-//     result =
-//       data[0] == 'F' && data[1] == 'U' && data[2] == 'Z' && data[3] == 'Z';
-//   }
-
-//   return result;
-// }
-
 extern "C" int LLVMFuzzerRunDriver(
   int *argc,
   char ***argv,
@@ -58,9 +45,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
   goto_mutationt mutation(t, Size, (*ptr).goto_functions);
   mutation.mutateSequence(msg);
   mutation.mutateNonSequence(msg);
-  //VulnerableFunction1(Data, Size);
-  //printf("1111111\n");
-  (*ptr).doint_fuzz();
+
+  (*ptr).doit_fuzz();
   return 0;
 }
 
@@ -77,5 +63,5 @@ int main(int argc, const char **argv)
 
   int aargc=1;
 
- // LLVMFuzzerRunDriver(&aargc, &aargv, LLVMFuzzerTestOneInput);
+  LLVMFuzzerRunDriver(&aargc, &aargv, LLVMFuzzerTestOneInput);
 }

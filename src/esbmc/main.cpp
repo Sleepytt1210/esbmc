@@ -38,11 +38,18 @@ extern "C" int LLVMFuzzerRunDriver(
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 {
   // roll back
-  (*ptr).goto_functions=func;
+  (*ptr).goto_functions = func;
 
   messaget msg;
   uint8_t *t = (uint8_t *)Data;
   goto_mutationt mutation(t, Size, (*ptr).goto_functions);
+  // if(mutation.m_it != func.function_map.end())
+  // {
+  //   goto_programt &mmain = mutation.m_it->second.body;
+  //   int program_len = mmain.instructions.size();
+  //   if(program_len+1 >= Size)
+  //     return 0;
+  // }
   mutation.mutateSequence(msg);
   mutation.mutateNonSequence(msg);
 
@@ -53,15 +60,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 int main(int argc, const char **argv)
 {
   // Initialize
-  char **aargv = (char **)argv;
+  //char **aargv = (char **)argv;
   messaget msg;
   esbmc_parseoptionst parseoptions(argc, argv, msg);
   parseoptions.main();
-  
-  ptr = &parseoptions;
-  func=(*ptr).goto_functions;
 
-  int aargc=1;
+  ptr = &parseoptions;
+  func = (*ptr).goto_functions;
+
+  int aargc = 5;
+  char **aargv = new char *[5];
+  aargv[0] = "./esbmc";
+  aargv[1] = "-max_total_time=400";
+  aargv[2] = "-max_len=1000000";
+  aargv[3] = "-seed=1";
+  aargv[4] = "corpus";
 
   LLVMFuzzerRunDriver(&aargc, &aargv, LLVMFuzzerTestOneInput);
 }

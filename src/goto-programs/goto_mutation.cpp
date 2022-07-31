@@ -1,12 +1,9 @@
 #include <goto-programs/goto_mutation.h>
 
-
 void goto_mutationt::getMain(goto_functionst::function_mapt::iterator &m_it)
 {
   m_it = func.function_map.find("c:@F@main");
 }
-
-
 
 bool goto_mutationt::hasSeeds()
 {
@@ -16,11 +13,21 @@ bool goto_mutationt::hasSeeds()
 void goto_mutationt::setSeeds(goto_programt &mmain)
 {
   int program_len = mmain.instructions.size();
-  seeds = (uint16_t *)calloc(program_len, sizeof(uint16_t));
-  for(size_t i = 0; i < program_len - 1 && i < Size - 1; i++)
-  {
-    seeds[i] = ((uint16_t)Data[i] << 8) | Data[i + 1];
+  // seeds = (uint16_t *)calloc(program_len, sizeof(uint16_t));
+  // for(size_t i = 0; i < program_len - 1 && i < Size - 2; i++)
+  // {
+  //   seeds[i] = ((uint16_t)Data[i] << 8) | Data[i + 2];
+  // }
+  uint16_t data[program_len];
+  std::random_device os_seed;
+  const u32 seed = os_seed();
+
+  engine generator(seed);
+  std::uniform_int_distribution<u32> distribute(0, program_len-1);
+  for(auto d : data){
+    d=uint16_t(distribute(generator));
   }
+  seeds=data;
 }
 
 template <typename T>
@@ -37,9 +44,6 @@ bool goto_mutationt::mutateSequence(
   messaget &msg) //const uint8_t *data, size_t size,
 {
   std::ostringstream os;
-  goto_functionst::function_mapt::iterator m_it;
-  getMain(m_it);
-
   if(m_it != func.function_map.end())
   {
     goto_programt &mmain = m_it->second.body;
@@ -70,9 +74,6 @@ bool goto_mutationt::mutateSequence(
 bool goto_mutationt::mutateNonSequence(messaget &msg)
 {
   std::ostringstream os;
-  goto_functionst::function_mapt::iterator m_it;
-  getMain(m_it);
-
   if(m_it != func.function_map.end())
   {
     goto_programt &mmain = m_it->second.body;

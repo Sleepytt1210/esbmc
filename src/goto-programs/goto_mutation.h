@@ -3,6 +3,10 @@
 #include <util/context.h>
 #include <stdint.h>
 #include <vector>
+#include <random>
+
+using u32 = uint_least32_t;
+using engine = std::mt19937;
 
 class goto_mutationt
 {
@@ -13,6 +17,7 @@ public:
     this->Size = Size;
     this->func = func;
     this->seeds = NULL;
+    getMain(this->m_it);
   }
   bool mutateSequence(messaget &msg);
   bool mutateNonSequence(messaget &msg);
@@ -34,6 +39,7 @@ public:
         *migrate_namespace_lookup, "c:@F@main", os, msg, false);
     }
   }
+  goto_functionst::function_mapt::iterator m_it ;
 
 private:
   uint8_t *Data;

@@ -1603,11 +1603,11 @@ bool esbmc_parseoptionst::read_goto_binary(goto_functionst &goto_functions)
   return false;
 }
 
-void esbmc_parseoptionst::setFuzz(const uint8_t *Data, size_t Size)
-{
-  this->Data = (uint8_t *)Data;
-  this->Size = Size;
-}
+// void esbmc_parseoptionst::setFuzz(const uint8_t *Data, size_t Size)
+// {
+//   this->Data = (uint8_t *)Data;
+//   this->Size = Size;
+// }
 
 bool esbmc_parseoptionst::process_goto_program(
   optionst &options,
@@ -1743,26 +1743,14 @@ bool esbmc_parseoptionst::process_goto_program(
 
     if(cmdline.isset("goto-fuzz"))
     {
-      // std::ostringstream os;
-      // goto_functionst::function_mapt::iterator m_it;
-      // goto_mutationt::getMain(m_it, goto_functions);
-      // os << "Show mutated value. \n";
-      // if(m_it != goto_functions.function_map.end())
-      // {
-      //   goto_programt &mmain = m_it->second.body;
-      //   context.Foreach_operand(
-      //     [](symbolt &s)
-      //     {
-      //       if(s.value.is_constant())
-      //       {
-      //         s.value.clear();
-      //       }
-      //     });
-      //   os << "Show mutated value. \n";
-      //   goto_mutationt::output(mmain, os, msg);
-      // }
-      // msg.status(os.str());
-      return true;
+      goto_mutationt mutation(NULL, 0, goto_functions);
+      mutation.mutateSequence(msg, goto_functions);
+      mutation.mutateNonSequence(msg, goto_functions);
+      //return true;
+    }
+    if(cmdline.isset("goto-libfuzz"))
+    {
+      ;
     }
 
     // show it?

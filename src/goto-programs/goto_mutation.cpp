@@ -1,6 +1,8 @@
 #include <goto-programs/goto_mutation.h>
 
-void goto_mutationt::getMain(goto_functionst::function_mapt::iterator &m_it)
+void goto_mutationt::getMain(
+  goto_functionst::function_mapt::iterator &m_it,
+  goto_functionst &func)
 {
   m_it = func.function_map.find("c:@F@main");
 }
@@ -13,21 +15,28 @@ bool goto_mutationt::hasSeeds()
 void goto_mutationt::setSeeds(goto_programt &mmain)
 {
   int program_len = mmain.instructions.size();
-  // seeds = (uint16_t *)calloc(program_len, sizeof(uint16_t));
-  // for(size_t i = 0; i < program_len - 1 && i < Size - 2; i++)
-  // {
-  //   seeds[i] = ((uint16_t)Data[i] << 8) | Data[i + 2];
-  // }
+  seeds = (uint16_t *)calloc(program_len, sizeof(uint16_t));
+  for(size_t i = 0; i < program_len - 1 && i < Size - 2; i++)
+  {
+    seeds[i] = abs(((uint16_t)Data[i] << 8) | Data[i + 2]);
+  }
+}
+
+void goto_mutationt::setPseudoSeeds(goto_programt &mmain)
+{
+  int program_len = mmain.instructions.size();
   uint16_t data[program_len];
   std::random_device os_seed;
   const u32 seed = os_seed();
 
   engine generator(seed);
-  std::uniform_int_distribution<u32> distribute(0, program_len-1);
-  for(auto d : data){
-    d=uint16_t(distribute(generator));
+  std::uniform_int_distribution<u32> distribute(0, program_len - 1);
+  for(auto d : data)
+  {
+    d = abs(uint16_t(distribute(generator)));
+    printf("%d", d);
   }
-  seeds=data;
+  seeds = data;
 }
 
 template <typename T>
@@ -41,7 +50,8 @@ void Knuth_Shuffle(std::vector<T> &arr, uint16_t *seeds)
 }
 
 bool goto_mutationt::mutateSequence(
-  messaget &msg) //const uint8_t *data, size_t size,
+  messaget &msg,
+  goto_functionst &func) //const uint8_t *data, size_t size,
 {
   std::ostringstream os;
   if(m_it != func.function_map.end())
@@ -50,7 +60,14 @@ bool goto_mutationt::mutateSequence(
     int program_len = mmain.instructions.size();
     if(!hasSeeds())
     {
-      setSeeds(mmain);
+      if(Data == NULL)
+      {
+        setPseudoSeeds(mmain);
+      }
+      else
+      {
+        setSeeds(mmain);
+      }
     }
     std::vector<goto_programt::instructiont::targett> instructions;
     Forall_goto_program_instructions(it, mmain)
@@ -71,7 +88,7 @@ bool goto_mutationt::mutateSequence(
   return false;
 }
 
-bool goto_mutationt::mutateNonSequence(messaget &msg)
+bool goto_mutationt::mutateNonSequence(messaget &msg, goto_functionst &func)
 {
   std::ostringstream os;
   if(m_it != func.function_map.end())
@@ -80,9 +97,15 @@ bool goto_mutationt::mutateNonSequence(messaget &msg)
     int program_len = mmain.instructions.size();
     if(!hasSeeds())
     {
-      setSeeds(mmain);
+      if(Data == NULL)
+      {
+        setPseudoSeeds(mmain);
+      }
+      else
+      {
+        setSeeds(mmain);
+      }
     }
-
     std::vector<goto_programt::instructiont::targett> targets;
     Forall_goto_program_instructions(it, mmain)
     {

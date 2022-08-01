@@ -101,8 +101,6 @@ private:
 
 public:
   goto_functionst goto_functions;
-  uint8_t* Data;
-  size_t Size;
 };
 
 #endif

@@ -341,7 +341,8 @@ const struct group_opt_templ all_cmd_options[] = {
     // transition to. Useful again for trying to replicate a particular context
     // switch order, or quickly explore what's reachable.
     {"interactive-ileaves", NULL, ""},
-    {"goto-fuzz", NULL, ""}}},
+    {"goto-fuzz", NULL, ""},
+    {"goto-libfuzz", NULL, ""}}},
   {"end", {{"", NULL, "end of options"}}},
   {"Hidden Options",
    {{"depth", boost::program_options::value<int>(), "instruction"},

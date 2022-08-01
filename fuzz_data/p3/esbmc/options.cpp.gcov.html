@@ -1,0 +1,425 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - esbmc/options.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">esbmc</a> - options.cpp<span style="font-size: 80%;"> (source / <a href="options.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2022-08-01 22:17:33</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;esbmc/esbmc_parseoptions.h&gt;</a>
+<a name="2"><span class="lineNum">       2 </span>            : #include &lt;fstream&gt;</a>
+<a name="3"><span class="lineNum">       3 </span>            : #include &lt;solvers/solver_config.h&gt;</a>
+<a name="4"><span class="lineNum">       4 </span>            : #include &lt;util/cmdline.h&gt;</a>
+<a name="5"><span class="lineNum">       5 </span>            : </a>
+<a name="6"><span class="lineNum">       6 </span><span class="lineCov">        288 : const struct group_opt_templ all_cmd_options[] = {</span></a>
+<a name="7"><span class="lineNum">       7 </span><span class="lineCov">         32 :   {&quot;Main Usage&quot;,</span></a>
+<a name="8"><span class="lineNum">       8 </span><span class="lineCov">         32 :    {{&quot;input-file&quot;,</span></a>
+<a name="9"><span class="lineNum">       9 </span><span class="lineCov">         32 :      boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;()-&gt;value_name(</span></a>
+<a name="10"><span class="lineNum">      10 </span><span class="lineCov">         16 :        &quot;file.c ...&quot;),</span></a>
+<a name="11"><span class="lineNum">      11 </span>            :      &quot;source file names&quot;}}},</a>
+<a name="12"><span class="lineNum">      12 </span><span class="lineCov">         16 :   {&quot;Options&quot;, {{&quot;help,?&quot;, NULL, &quot;show help&quot;}}},</span></a>
+<a name="13"><span class="lineNum">      13 </span><span class="lineCov">         32 :   {&quot;Printing options&quot;,</span></a>
+<a name="14"><span class="lineNum">      14 </span><span class="lineCov">         16 :    {{&quot;symbol-table-only&quot;, NULL, &quot;only show symbol table&quot;},</span></a>
+<a name="15"><span class="lineNum">      15 </span>            :     {&quot;symbol-table-too&quot;, NULL, &quot;show symbol table and verify&quot;},</a>
+<a name="16"><span class="lineNum">      16 </span>            :     {&quot;parse-tree-only&quot;, NULL, &quot;only show parse tree&quot;},</a>
+<a name="17"><span class="lineNum">      17 </span>            :     {&quot;parse-tree-too&quot;, NULL, &quot;show parse tree and verify&quot;},</a>
+<a name="18"><span class="lineNum">      18 </span>            :     {&quot;goto-functions-only&quot;, NULL, &quot;only show goto program&quot;},</a>
+<a name="19"><span class="lineNum">      19 </span>            :     {&quot;goto-functions-too&quot;, NULL, &quot;show goto program and verify&quot;},</a>
+<a name="20"><span class="lineNum">      20 </span>            :     {&quot;program-only&quot;, NULL, &quot;only show program expression&quot;},</a>
+<a name="21"><span class="lineNum">      21 </span>            :     {&quot;program-too&quot;, NULL, &quot;show program expression and verify&quot;},</a>
+<a name="22"><span class="lineNum">      22 </span>            :     {&quot;ssa-symbol-table&quot;, NULL, &quot;show symbol table along with SSA&quot;},</a>
+<a name="23"><span class="lineNum">      23 </span>            :     {&quot;ssa-guards&quot;, NULL, &quot;&quot;},</a>
+<a name="24"><span class="lineNum">      24 </span>            :     {&quot;ssa-sliced&quot;, NULL, &quot;print the sliced SSAs&quot;},</a>
+<a name="25"><span class="lineNum">      25 </span>            :     {&quot;ssa-no-location&quot;, NULL, &quot;&quot;},</a>
+<a name="26"><span class="lineNum">      26 </span>            :     {&quot;smt-formula-only&quot;,</a>
+<a name="27"><span class="lineNum">      27 </span>            :      NULL,</a>
+<a name="28"><span class="lineNum">      28 </span>            :      &quot;only show SMT formula {not supported by all solvers},&quot;},</a>
+<a name="29"><span class="lineNum">      29 </span>            :     {&quot;smt-formula-too&quot;,</a>
+<a name="30"><span class="lineNum">      30 </span>            :      NULL,</a>
+<a name="31"><span class="lineNum">      31 </span>            :      &quot;show SMT formula (not supported by all solvers), and verify&quot;},</a>
+<a name="32"><span class="lineNum">      32 </span>            :     {&quot;smt-model&quot;,</a>
+<a name="33"><span class="lineNum">      33 </span>            :      NULL,</a>
+<a name="34"><span class="lineNum">      34 </span>            :      &quot;show SMT model (not supported by all solvers), if the formula is SAT&quot;}}},</a>
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">         32 :   {&quot;Trace&quot;,</span></a>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">         16 :    {{&quot;quiet&quot;,</span></a>
+<a name="37"><span class="lineNum">      37 </span>            :      NULL,</a>
+<a name="38"><span class="lineNum">      38 </span>            :      &quot;do not print unwinding information during symbolic execution&quot;},</a>
+<a name="39"><span class="lineNum">      39 </span>            :     {&quot;compact-trace&quot;, NULL, &quot;&quot;},</a>
+<a name="40"><span class="lineNum">      40 </span>            :     {&quot;symex-trace&quot;, NULL, &quot;print instructions during symbolic execution&quot;},</a>
+<a name="41"><span class="lineNum">      41 </span>            :     {&quot;ssa-trace&quot;, NULL, &quot;print SSA during SMT encoding&quot;},</a>
+<a name="42"><span class="lineNum">      42 </span>            :     {&quot;ssa-smt-trace&quot;, NULL, &quot;print generated SMT during SMT encoding&quot;},</a>
+<a name="43"><span class="lineNum">      43 </span>            :     {&quot;symex-ssa-trace&quot;, NULL, &quot;print generated SSA during symbolic execution&quot;},</a>
+<a name="44"><span class="lineNum">      44 </span>            :     {&quot;show-goto-value-sets&quot;,</a>
+<a name="45"><span class="lineNum">      45 </span>            :      NULL,</a>
+<a name="46"><span class="lineNum">      46 </span>            :      &quot;show value-set analysis for the goto functions&quot;},</a>
+<a name="47"><span class="lineNum">      47 </span>            :     {&quot;show-symex-value-sets&quot;,</a>
+<a name="48"><span class="lineNum">      48 </span>            :      NULL,</a>
+<a name="49"><span class="lineNum">      49 </span>            :      &quot;show value-set analysis during symbolic execution&quot;}}},</a>
+<a name="50"><span class="lineNum">      50 </span>            : #ifdef ENABLE_SOLIDITY_FRONTEND</a>
+<a name="51"><span class="lineNum">      51 </span>            :   {&quot;Solidity frontend&quot;,</a>
+<a name="52"><span class="lineNum">      52 </span>            :    {</a>
+<a name="53"><span class="lineNum">      53 </span>            :      {&quot;contract&quot;,</a>
+<a name="54"><span class="lineNum">      54 </span>            :       boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;path&quot;),</a>
+<a name="55"><span class="lineNum">      55 </span>            :       &quot;set smart contract source&quot;},</a>
+<a name="56"><span class="lineNum">      56 </span>            :    }},</a>
+<a name="57"><span class="lineNum">      57 </span>            : #endif</a>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">         32 :   {&quot;Frontend&quot;,</span></a>
+<a name="59"><span class="lineNum">      59 </span><span class="lineCov">         80 :    {{&quot;include,I&quot;,</span></a>
+<a name="60"><span class="lineNum">      60 </span><span class="lineCov">         32 :      boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;()-&gt;value_name(</span></a>
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">         16 :        &quot;path&quot;),</span></a>
+<a name="62"><span class="lineNum">      62 </span>            :      &quot;set include path&quot;},</a>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         32 :     {&quot;idirafter&quot;,</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">         32 :      boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;()-&gt;value_name(</span></a>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">         16 :        &quot;path&quot;),</span></a>
+<a name="66"><span class="lineNum">      66 </span>            :      &quot;append system include path to search after system headers&quot;},</a>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">         32 :     {&quot;define,D&quot;,</span></a>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">         32 :      boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;()-&gt;value_name(</span></a>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">         16 :        &quot;macro&quot;),</span></a>
+<a name="70"><span class="lineNum">      70 </span>            :      &quot;define preprocessor macro&quot;},</a>
+<a name="71"><span class="lineNum">      71 </span><span class="lineCov">         16 :     {&quot;warning,W&quot;,</span></a>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;(),</span></a>
+<a name="73"><span class="lineNum">      73 </span>            :      &quot;&quot;},</a>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">         32 :     {&quot;sysroot&quot;,</span></a>
+<a name="75"><span class="lineNum">      75 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;&lt;path&gt;&quot;),</span></a>
+<a name="76"><span class="lineNum">      76 </span>            :      &quot;set the sysroot for the frontend&quot;},</a>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">         16 :     {&quot;force,f&quot;, boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;(), &quot;&quot;},</span></a>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">         16 :     {&quot;preprocess&quot;, NULL, &quot;stop after preprocessing&quot;},</span></a>
+<a name="79"><span class="lineNum">      79 </span><span class="lineCov">         16 :     {&quot;no-inlining&quot;, NULL, &quot;disable inlining function calls&quot;},</span></a>
+<a name="80"><span class="lineNum">      80 </span><span class="lineCov">         16 :     {&quot;full-inlining&quot;, NULL, &quot;perform full inlining of function calls&quot;},</span></a>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">         16 :     {&quot;all-claims&quot;, NULL, &quot;keep all claims&quot;},</span></a>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">         16 :     {&quot;show-loops&quot;, NULL, &quot;show the loops in the program&quot;},</span></a>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">         16 :     {&quot;show-claims&quot;, NULL, &quot;only show claims&quot;},</span></a>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">         16 :     {&quot;show-vcc&quot;, NULL, &quot;show the verification conditions&quot;},</span></a>
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">         16 :     {&quot;document-subgoals&quot;, NULL, &quot;generate subgoals documentation&quot;},</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">         16 :     {&quot;no-arch&quot;, NULL, &quot;don't set up an architecture&quot;},</span></a>
+<a name="87"><span class="lineNum">      87 </span><span class="lineCov">         16 :     {&quot;no-library&quot;, NULL, &quot;disable built-in abstract C library&quot;},</span></a>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">         16 :     {&quot;output-goto&quot;,</span></a>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;(),</span></a>
+<a name="90"><span class="lineNum">      90 </span>            :      &quot;export generated goto program&quot;},</a>
+<a name="91"><span class="lineNum">      91 </span><span class="lineCov">         16 :     {&quot;binary&quot;, NULL, &quot;read goto program instead of source code&quot;},</span></a>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">         16 :     {&quot;little-endian&quot;, NULL, &quot;allow little-endian word-byte conversions&quot;},</span></a>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">         16 :     {&quot;big-endian&quot;, NULL, &quot;allow big-endian word-byte conversions&quot;},</span></a>
+<a name="94"><span class="lineNum">      94 </span><span class="lineCov">         16 :     {&quot;16&quot;, NULL, &quot;set width of machine word (default is 64)&quot;},</span></a>
+<a name="95"><span class="lineNum">      95 </span><span class="lineCov">         16 :     {&quot;32&quot;, NULL, &quot;set width of machine word (default is 64)&quot;},</span></a>
+<a name="96"><span class="lineNum">      96 </span><span class="lineCov">         16 :     {&quot;64&quot;, NULL, &quot;set width of machine word (default is 64)&quot;},</span></a>
+<a name="97"><span class="lineNum">      97 </span><span class="lineCov">         16 :     {&quot;version&quot;, NULL, &quot;show current ESBMC version and exit&quot;},</span></a>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">         16 :     {&quot;cex-output&quot;,</span></a>
+<a name="99"><span class="lineNum">      99 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;(),</span></a>
+<a name="100"><span class="lineNum">     100 </span>            :      &quot;save the counterexample into a file&quot;},</a>
+<a name="101"><span class="lineNum">     101 </span><span class="lineCov">         16 :     {&quot;file-output&quot;,</span></a>
+<a name="102"><span class="lineNum">     102 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;(),</span></a>
+<a name="103"><span class="lineNum">     103 </span>            :      &quot;redirects every message into a file (no stdout/stderr)&quot;},</a>
+<a name="104"><span class="lineNum">     104 </span><span class="lineCov">         16 :     {&quot;witness-output&quot;,</span></a>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;(),</span></a>
+<a name="106"><span class="lineNum">     106 </span>            :      &quot;generate the verification result witness in GraphML format&quot;},</a>
+<a name="107"><span class="lineNum">     107 </span><span class="lineCov">         16 :     {&quot;witness-producer&quot;, boost::program_options::value&lt;std::string&gt;(), &quot;&quot;},</span></a>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">         16 :     {&quot;witness-programfile&quot;, boost::program_options::value&lt;std::string&gt;(), &quot;&quot;},</span></a>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">         16 :     {&quot;old-frontend&quot;,</span></a>
+<a name="110"><span class="lineNum">     110 </span>            :      NULL,</a>
+<a name="111"><span class="lineNum">     111 </span>            :      &quot;parse source files using our old frontend {deprecated},&quot;},</a>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">         16 :     {&quot;result-only&quot;, NULL, &quot;do not print the counter-example&quot;},</span></a>
+<a name="113"><span class="lineNum">     113 </span>            : #ifdef _WIN32</a>
+<a name="114"><span class="lineNum">     114 </span>            :     {&quot;i386-macos&quot;, NULL, &quot;set MACOS/I386 architecture&quot;},</a>
+<a name="115"><span class="lineNum">     115 </span>            :     {&quot;ppc-macos&quot;, NULL, &quot;set PPC/I386 architecture&quot;},</a>
+<a name="116"><span class="lineNum">     116 </span>            :     {&quot;i386-linux&quot;, NULL, &quot;set Linux/I386 architecture&quot;},</a>
+<a name="117"><span class="lineNum">     117 </span>            :     {&quot;i386-win32&quot;, NULL, &quot;set Windows/I386 architecture (default),&quot;},</a>
+<a name="118"><span class="lineNum">     118 </span>            : #elif __APPLE__</a>
+<a name="119"><span class="lineNum">     119 </span>            :     {&quot;i386-macos&quot;, NULL, &quot;set MACOS/I386 architecture (default),&quot;},</a>
+<a name="120"><span class="lineNum">     120 </span>            :     {&quot;ppc-macos&quot;, NULL, &quot;set PPC/I386 architecture&quot;},</a>
+<a name="121"><span class="lineNum">     121 </span>            :     {&quot;i386-linux&quot;, NULL, &quot;set Linux/I386 architecture&quot;},</a>
+<a name="122"><span class="lineNum">     122 </span>            :     {&quot;i386-win32&quot;, NULL, &quot;set Windows/I386 architecture&quot;},</a>
+<a name="123"><span class="lineNum">     123 </span>            : #else</a>
+<a name="124"><span class="lineNum">     124 </span><span class="lineCov">         16 :     {&quot;i386-macos&quot;, NULL, &quot;set MACOS/I386 architecture&quot;},</span></a>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">         16 :     {&quot;ppc-macos&quot;, NULL, &quot;set PPC/I386 architecture&quot;},</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">         16 :     {&quot;i386-linux&quot;, NULL, &quot;set Linux/I386 architecture (default),&quot;},</span></a>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">         16 :     {&quot;i386-win32&quot;, NULL, &quot;set Windows/I386 architecture&quot;},</span></a>
+<a name="128"><span class="lineNum">     128 </span>            : #endif</a>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">         16 :     {&quot;funsigned-char&quot;, NULL, &quot;make \&quot;char\&quot; unsigned by default&quot;},</span></a>
+<a name="130"><span class="lineNum">     130 </span><span class="lineCov">         16 :     {&quot;fms-extensions&quot;, NULL, &quot;enable microsoft C extensions&quot;}}},</span></a>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">         32 :   {&quot;BMC&quot;,</span></a>
+<a name="132"><span class="lineNum">     132 </span><span class="lineCov">        256 :    {{&quot;function&quot;,</span></a>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;name&quot;),</span></a>
+<a name="134"><span class="lineNum">     134 </span>            :      &quot;set main function name&quot;},</a>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">         32 :     {&quot;claim&quot;,</span></a>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::vector&lt;int&gt;&gt;()-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="137"><span class="lineNum">     137 </span>            :      &quot;only check specific claim&quot;},</a>
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">         32 :     {&quot;instruction&quot;,</span></a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="140"><span class="lineNum">     140 </span>            :      &quot;limit the number of instructions executed during symbolic execution&quot;},</a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">         32 :     {&quot;unwind&quot;,</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="143"><span class="lineNum">     143 </span>            :      &quot;unwind nr times&quot;},</a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineCov">         32 :     {&quot;unwindset&quot;,</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="146"><span class="lineNum">     146 </span>            :      &quot;unwind given loop nr times&quot;},</a>
+<a name="147"><span class="lineNum">     147 </span><span class="lineCov">         16 :     {&quot;no-unwinding-assertions&quot;, NULL, &quot;do not generate unwinding assertions&quot;},</span></a>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">         16 :     {&quot;partial-loops&quot;, NULL, &quot;permit paths with partial loops&quot;},</span></a>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">         16 :     {&quot;unroll-loops&quot;, NULL, &quot;&quot;},</span></a>
+<a name="150"><span class="lineNum">     150 </span><span class="lineCov">         16 :     {&quot;no-slice&quot;, NULL, &quot;do not remove unused equations&quot;},</span></a>
+<a name="151"><span class="lineNum">     151 </span><span class="lineCov">         16 :     {&quot;initialize-nondet-variables&quot;,</span></a>
+<a name="152"><span class="lineNum">     152 </span>            :      NULL,</a>
+<a name="153"><span class="lineNum">     153 </span>            :      &quot;initialize declarations with nondet expression (if it hasn`t a default &quot;</a>
+<a name="154"><span class="lineNum">     154 </span>            :      &quot;value)&quot;},</a>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">         16 :     {&quot;goto-unwind&quot;, NULL, &quot;unroll bounded loops at goto level&quot;},</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">         16 :     {&quot;unlimited-goto-unwind&quot;,</span></a>
+<a name="157"><span class="lineNum">     157 </span>            :      NULL,</a>
+<a name="158"><span class="lineNum">     158 </span>            :      &quot;do not unroll bounded loops at goto level&quot;},</a>
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">         16 :     {&quot;slice-assumes&quot;, NULL, &quot;remove unused assume statements&quot;},</span></a>
+<a name="160"><span class="lineNum">     160 </span><span class="lineCov">         16 :     {&quot;extended-try-analysis&quot;, NULL, &quot;&quot;},</span></a>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">         16 :     {&quot;skip-bmc&quot;, NULL, &quot;&quot;}}},</span></a>
+<a name="162"><span class="lineNum">     162 </span><span class="lineCov">         32 :   {&quot;Incremental BMC&quot;,</span></a>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">         16 :    {{&quot;incremental-bmc&quot;, NULL, &quot;incremental loop unwinding verification&quot;},</span></a>
+<a name="164"><span class="lineNum">     164 </span>            :     {&quot;falsification&quot;, NULL, &quot;incremental loop unwinding for bug searching&quot;},</a>
+<a name="165"><span class="lineNum">     165 </span>            :     {&quot;termination&quot;,</a>
+<a name="166"><span class="lineNum">     166 </span>            :      NULL,</a>
+<a name="167"><span class="lineNum">     167 </span>            :      &quot;incremental loop unwinding assertion verification&quot;}}},</a>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">         32 :   {&quot;Solver&quot;,</span></a>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">        320 :    {{&quot;list-solvers&quot;, NULL, &quot;list available solvers and exit&quot;},</span></a>
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">         16 :     {&quot;boolector&quot;, NULL, &quot;use Boolector (default),&quot;},</span></a>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">         16 :     {&quot;z3&quot;, NULL, &quot;use Z3&quot;},</span></a>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">         16 :     {&quot;mathsat&quot;, NULL, &quot;use MathSAT&quot;},</span></a>
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">         16 :     {&quot;cvc&quot;, NULL, &quot;use CVC4&quot;},</span></a>
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">         16 :     {&quot;yices&quot;, NULL, &quot;use Yices&quot;},</span></a>
+<a name="175"><span class="lineNum">     175 </span><span class="lineCov">         16 :     {&quot;bitwuzla&quot;, NULL, &quot;use Bitwuzla&quot;},</span></a>
+<a name="176"><span class="lineNum">     176 </span><span class="lineCov">         16 :     {&quot;bv&quot;, NULL, &quot;use solver with bit-vector arithmetic&quot;},</span></a>
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">         16 :     {&quot;ir&quot;, NULL, &quot;use solver with integer/real arithmetic&quot;},</span></a>
+<a name="178"><span class="lineNum">     178 </span><span class="lineCov">         16 :     {&quot;smtlib&quot;, NULL, &quot;use SMT lib format&quot;},</span></a>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">         32 :     {&quot;default-solver&quot;,</span></a>
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;&lt;solver&gt;&quot;),</span></a>
+<a name="181"><span class="lineNum">     181 </span>            :      &quot;override default solver used if no concrete one is specified&quot;</a>
+<a name="182"><span class="lineNum">     182 </span>            : #ifdef BOOLECTOR</a>
+<a name="183"><span class="lineNum">     183 </span>            :      &quot; (Boolector)&quot;</a>
+<a name="184"><span class="lineNum">     184 </span>            : #endif</a>
+<a name="185"><span class="lineNum">     185 </span>            :     },</a>
+<a name="186"><span class="lineNum">     186 </span><span class="lineCov">         16 :     {&quot;non-supported-models-as-zero&quot;,</span></a>
+<a name="187"><span class="lineNum">     187 </span>            :      NULL,</a>
+<a name="188"><span class="lineNum">     188 </span>            :      &quot;if ESBMC can't extract a type/expression from the solver, then the value &quot;</a>
+<a name="189"><span class="lineNum">     189 </span>            :      &quot;will be set to zero&quot;},</a>
+<a name="190"><span class="lineNum">     190 </span><span class="lineCov">         16 :     {&quot;smtlib-solver-prog&quot;,</span></a>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<a name="192"><span class="lineNum">     192 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;(),</span></a>
+<a name="193"><span class="lineNum">     193 </span>            :      &quot;SMT lib program name&quot;},</a>
+<a name="194"><span class="lineNum">     194 </span><span class="lineCov">         32 :     {&quot;output&quot;,</span></a>
+<a name="195"><span class="lineNum">     195 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;&lt;filename&gt;&quot;),</span></a>
+<a name="196"><span class="lineNum">     196 </span>            :      &quot;output VCCs in SMT lib format to given file&quot;},</a>
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">         16 :     {&quot;floatbv&quot;,</span></a>
+<a name="198"><span class="lineNum">     198 </span>            :      NULL,</a>
+<a name="199"><span class="lineNum">     199 </span>            :      &quot;encode floating-point using the SMT floating-point theory(default)&quot;},</a>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">         16 :     {&quot;fixedbv&quot;, NULL, &quot;encode floating-point as fixed bit-vectors&quot;},</span></a>
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">         16 :     {&quot;fp2bv&quot;,</span></a>
+<a name="202"><span class="lineNum">     202 </span>            :      NULL,</a>
+<a name="203"><span class="lineNum">     203 </span>            :      &quot;encode floating-point as bit-vectors(default for solvers that don't &quot;</a>
+<a name="204"><span class="lineNum">     204 </span>            :      &quot;support the SMT floating-point theory)&quot;},</a>
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">         16 :     {&quot;tuple-node-flattener&quot;, NULL, &quot;encode tuples using our tuple to node API&quot;},</span></a>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">         16 :     {&quot;tuple-sym-flattener&quot;,</span></a>
+<a name="207"><span class="lineNum">     207 </span>            :      NULL,</a>
+<a name="208"><span class="lineNum">     208 </span>            :      &quot;encode tuples using our tuple to symbol API&quot;},</a>
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">         16 :     {&quot;array-flattener&quot;, NULL, &quot;encode arrays using our array API&quot;},</span></a>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         16 :     {&quot;no-return-value-opt&quot;,</span></a>
+<a name="211"><span class="lineNum">     211 </span>            :      NULL,</a>
+<a name="212"><span class="lineNum">     212 </span>            :      &quot;disable return value optimization to compute the stack size&quot;}}},</a>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">         32 :   {&quot;Incremental SMT&quot;,</span></a>
+<a name="215"><span class="lineNum">     215 </span><span class="lineCov">         16 :    {{&quot;smt-during-symex&quot;,</span></a>
+<a name="216"><span class="lineNum">     216 </span>            :      NULL,</a>
+<a name="217"><span class="lineNum">     217 </span>            :      &quot;enable incremental SMT solving {experimental},&quot;},</a>
+<a name="218"><span class="lineNum">     218 </span>            :     {&quot;smt-thread-guard&quot;,</a>
+<a name="219"><span class="lineNum">     219 </span>            :      NULL,</a>
+<a name="220"><span class="lineNum">     220 </span>            :      &quot;check the thread guard during thread exploration {experimental},&quot;},</a>
+<a name="221"><span class="lineNum">     221 </span>            :     {&quot;smt-symex-guard&quot;,</a>
+<a name="222"><span class="lineNum">     222 </span>            :      NULL,</a>
+<a name="223"><span class="lineNum">     223 </span>            :      &quot;check conditional goto statements during symbolic execution &quot;</a>
+<a name="224"><span class="lineNum">     224 </span>            :      &quot;{experimental},&quot;},</a>
+<a name="225"><span class="lineNum">     225 </span>            :     {&quot;smt-symex-assert&quot;,</a>
+<a name="226"><span class="lineNum">     226 </span>            :      NULL,</a>
+<a name="227"><span class="lineNum">     227 </span>            :      &quot;check assertion statements during symbolic execution {experimental},&quot;}}},</a>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">         32 :   {&quot;Property checking&quot;,</span></a>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">        272 :    {{&quot;no-assertions&quot;, NULL, &quot;ignore assertions&quot;},</span></a>
+<a name="230"><span class="lineNum">     230 </span><span class="lineCov">         16 :     {&quot;no-bounds-check&quot;, NULL, &quot;do not do array bounds check&quot;},</span></a>
+<a name="231"><span class="lineNum">     231 </span><span class="lineCov">         16 :     {&quot;no-div-by-zero-check&quot;, NULL, &quot;do not do division by zero check&quot;},</span></a>
+<a name="232"><span class="lineNum">     232 </span><span class="lineCov">         16 :     {&quot;no-pointer-check&quot;, NULL, &quot;do not do pointer check&quot;},</span></a>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">         16 :     {&quot;no-align-check&quot;, NULL, &quot;do not check pointer alignment&quot;},</span></a>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">         16 :     {&quot;no-pointer-relation-check&quot;, NULL, &quot;do not check pointer relations&quot;},</span></a>
+<a name="235"><span class="lineNum">     235 </span><span class="lineCov">         16 :     {&quot;nan-check&quot;, NULL, &quot;check floating-point for NaN&quot;},</span></a>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">         16 :     {&quot;memory-leak-check&quot;, NULL, &quot;enable memory leak check&quot;},</span></a>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">         16 :     {&quot;overflow-check&quot;, NULL, &quot;enable arithmetic over- and underflow check&quot;},</span></a>
+<a name="238"><span class="lineNum">     238 </span><span class="lineCov">         16 :     {&quot;struct-fields-check&quot;,</span></a>
+<a name="239"><span class="lineNum">     239 </span>            :      NULL,</a>
+<a name="240"><span class="lineNum">     240 </span>            :      &quot;enable over-sized read checks for struct fields&quot;},</a>
+<a name="241"><span class="lineNum">     241 </span><span class="lineCov">         16 :     {&quot;deadlock-check&quot;,</span></a>
+<a name="242"><span class="lineNum">     242 </span>            :      NULL,</a>
+<a name="243"><span class="lineNum">     243 </span>            :      &quot;enable global and local deadlock check with mutex&quot;},</a>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         16 :     {&quot;data-races-check&quot;, NULL, &quot;enable data races check&quot;},</span></a>
+<a name="245"><span class="lineNum">     245 </span><span class="lineCov">         16 :     {&quot;lock-order-check&quot;, NULL, &quot;enable for lock acquisition ordering check&quot;},</span></a>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">         16 :     {&quot;atomicity-check&quot;, NULL, &quot;enable atomicity check at visible assignments&quot;},</span></a>
+<a name="247"><span class="lineNum">     247 </span><span class="lineCov">         32 :     {&quot;stack-limit&quot;,</span></a>
+<a name="248"><span class="lineNum">     248 </span><span class="lineCov">         32 :      boost::program_options::value&lt;int&gt;()-&gt;default_value(-1)-&gt;value_name(</span></a>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         16 :        &quot;bits&quot;),</span></a>
+<a name="250"><span class="lineNum">     250 </span>            :      &quot;check if stack limit is respected&quot;},</a>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">         32 :     {&quot;error-label&quot;,</span></a>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">         16 :      boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;label&quot;),</span></a>
+<a name="253"><span class="lineNum">     253 </span>            :      &quot;check if label is unreachable&quot;},</a>
+<a name="254"><span class="lineNum">     254 </span><span class="lineCov">         16 :     {&quot;force-malloc-success&quot;, NULL, &quot;do not check for malloc/new failure&quot;}}},</span></a>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">         32 :   {&quot;k-induction&quot;,</span></a>
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">        192 :    {{&quot;base-case&quot;, NULL, &quot;check the base case&quot;},</span></a>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">         16 :     {&quot;forward-condition&quot;, NULL, &quot;check the forward condition&quot;},</span></a>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">         16 :     {&quot;inductive-step&quot;, NULL, &quot;check the inductive step&quot;},</span></a>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">         16 :     {&quot;k-induction&quot;, NULL, &quot;prove by k-induction &quot;},</span></a>
+<a name="260"><span class="lineNum">     260 </span><span class="lineCov">         16 :     {&quot;goto-contractor&quot;,</span></a>
+<a name="261"><span class="lineNum">     261 </span>            :      NULL,</a>
+<a name="262"><span class="lineNum">     262 </span>            :      &quot;enable contractor-based interval refinements on goto level&quot;},</a>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">         16 :     {&quot;k-induction-parallel&quot;,</span></a>
+<a name="264"><span class="lineNum">     264 </span>            :      NULL,</a>
+<a name="265"><span class="lineNum">     265 </span>            :      &quot;prove by k-induction, running each step on a separate process&quot;},</a>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">         32 :     {&quot;k-step&quot;,</span></a>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;default_value(1)-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="268"><span class="lineNum">     268 </span>            :      &quot;set k increment (default is 1)&quot;},</a>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">         32 :     {&quot;max-k-step&quot;,</span></a>
+<a name="270"><span class="lineNum">     270 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;default_value(50)-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="271"><span class="lineNum">     271 </span>            :      &quot;set max number of iteration (default is 50)&quot;},</a>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         16 :     {&quot;show-cex&quot;,</span></a>
+<a name="273"><span class="lineNum">     273 </span>            :      NULL,</a>
+<a name="274"><span class="lineNum">     274 </span>            :      &quot;print the counter-example produced by the inductive step&quot;},</a>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">         16 :     {&quot;bidirectional&quot;, NULL, &quot;&quot;},</span></a>
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">         16 :     {&quot;unlimited-k-steps&quot;, NULL, &quot;set max number of iteration to UINT_MAX&quot;},</span></a>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">         32 :     {&quot;max-inductive-step&quot;,</span></a>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;default_value(-1)-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="279"><span class="lineNum">     279 </span>            :      &quot;&quot;}}},</a>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">         32 :   {&quot;Scheduling&quot;,</span></a>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">         16 :    {</span></a>
+<a name="282"><span class="lineNum">     282 </span>            :      {&quot;schedule&quot;, NULL, &quot;use schedule recording approach&quot;},</a>
+<a name="283"><span class="lineNum">     283 </span>            :    }},</a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">         32 :   {&quot;Concurrency checking&quot;,</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">         96 :    {{&quot;context-bound&quot;,</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">         16 :      boost::program_options::value&lt;int&gt;()-&gt;default_value(-1)-&gt;value_name(&quot;nr&quot;),</span></a>
+<a name="287"><span class="lineNum">     287 </span>            :      &quot;limit number of context switches for each thread&quot;},</a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">         16 :     {&quot;state-hashing&quot;, NULL, &quot;enable state-hashing, prunes duplicate states&quot;},</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">         16 :     {&quot;no-goto-merge&quot;,</span></a>
+<a name="290"><span class="lineNum">     290 </span>            :      NULL,</a>
+<a name="291"><span class="lineNum">     291 </span>            :      &quot;do not not merge gotos when restoring the last paths after a &quot;</a>
+<a name="292"><span class="lineNum">     292 </span>            :      &quot;context-switch&quot;},</a>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">         16 :     {&quot;no-por&quot;, NULL, &quot;do not do partial order reduction&quot;},</span></a>
+<a name="294"><span class="lineNum">     294 </span><span class="lineCov">         16 :     {&quot;all-runs&quot;,</span></a>
+<a name="295"><span class="lineNum">     295 </span>            :      NULL,</a>
+<a name="296"><span class="lineNum">     296 </span>            :      &quot;check all interleavings, even if a bug was already found&quot;}}},</a>
+<a name="297"><span class="lineNum">     297 </span><span class="lineCov">         32 :   {&quot;Miscellaneous options&quot;,</span></a>
+<a name="298"><span class="lineNum">     298 </span><span class="lineCov">        144 :    {</span></a>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">         32 :      {&quot;memlimit&quot;,</span></a>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">         16 :       boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;limit&quot;),</span></a>
+<a name="302"><span class="lineNum">     302 </span>            :       &quot;configure memory limit, of form \&quot;100m\&quot; or \&quot;2g\&quot;&quot;},</a>
+<a name="303"><span class="lineNum">     303 </span><span class="lineCov">         16 :      {&quot;memstats&quot;, NULL, &quot;print memory usage statistics&quot;},</span></a>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">         32 :      {&quot;timeout&quot;,</span></a>
+<a name="305"><span class="lineNum">     305 </span><span class="lineCov">         16 :       boost::program_options::value&lt;std::string&gt;()-&gt;value_name(&quot;t&quot;),</span></a>
+<a name="306"><span class="lineNum">     306 </span>            :       &quot;configure time limit, integer followed by {s,m,h}&quot;},</a>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">         16 :      {&quot;enable-core-dump&quot;, NULL, &quot;do not disable core dump output&quot;},</span></a>
+<a name="308"><span class="lineNum">     308 </span><span class="lineCov">         16 :      {&quot;no-simplify&quot;, NULL, &quot;do not simplify any expression&quot;},</span></a>
+<a name="309"><span class="lineNum">     309 </span><span class="lineCov">         16 :      {&quot;no-propagation&quot;, NULL, &quot;disable constant propagation&quot;},</span></a>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">         16 :      {&quot;interval-analysis&quot;,</span></a>
+<a name="311"><span class="lineNum">     311 </span>            :       NULL,</a>
+<a name="312"><span class="lineNum">     312 </span>            :       &quot;enable interval analysis for integer variables and add assumes to the &quot;</a>
+<a name="313"><span class="lineNum">     313 </span>            :       &quot;program&quot;},</a>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">         16 :      {&quot;add-symex-value-sets&quot;,</span></a>
+<a name="315"><span class="lineNum">     315 </span>            :       NULL,</a>
+<a name="316"><span class="lineNum">     316 </span>            :       &quot;enable value-set analysis for pointers and add assumes to the &quot;</a>
+<a name="317"><span class="lineNum">     317 </span>            :       &quot;program&quot;}}},</a>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">         32 :   {&quot;DEBUG options&quot;,</span></a>
+<a name="320"><span class="lineNum">     320 </span><span class="lineCov">         64 :    {// Print commit hash for current binary</span></a>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">         16 :     {&quot;git-hash&quot;, NULL, &quot;&quot;},</span></a>
+<a name="322"><span class="lineNum">     322 </span>            :     // Check if there is two or more assingments to the same SSA instruction</a>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">         16 :     {&quot;double-assign-check&quot;, NULL, &quot;&quot;},</span></a>
+<a name="324"><span class="lineNum">     324 </span>            :     // Abort if the program contains a recursion</a>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">         16 :     {&quot;abort-on-recursion&quot;, NULL, &quot;&quot;},</span></a>
+<a name="326"><span class="lineNum">     326 </span>            :     // Verbosity of message, probably does nothing</a>
+<a name="327"><span class="lineNum">     327 </span><span class="lineCov">         16 :     {&quot;verbosity&quot;, boost::program_options::value&lt;int&gt;(), &quot;&quot;},</span></a>
+<a name="328"><span class="lineNum">     328 </span>            :     // --break-at $insnnum will cause ESBMC to execute a trap</a>
+<a name="329"><span class="lineNum">     329 </span>            :     // instruction when it executes the designated GOTO instruction number.</a>
+<a name="330"><span class="lineNum">     330 </span><span class="lineCov">         16 :     {&quot;break-at&quot;, boost::program_options::value&lt;std::string&gt;(), &quot;&quot;},</span></a>
+<a name="331"><span class="lineNum">     331 </span>            :     // I added some intrinsics along the line of &quot;__ESBMC_switch_to_thread&quot;</a>
+<a name="332"><span class="lineNum">     332 </span>            :     // that immediately transitioned to a particular thread and didn't allow</a>
+<a name="333"><span class="lineNum">     333 </span>            :     // any other exploration from that point. Useful for constructing an</a>
+<a name="334"><span class="lineNum">     334 </span>            :     // explicit multithreading path</a>
+<a name="335"><span class="lineNum">     335 </span><span class="lineCov">         16 :     {&quot;direct-interleavings&quot;, NULL, &quot;&quot;},</span></a>
+<a name="336"><span class="lineNum">     336 </span>            :     // I think this dumps the current stack of all threads on an ileave point.</a>
+<a name="337"><span class="lineNum">     337 </span>            :     // Useful for working out the state of _all_ the threads and how they</a>
+<a name="338"><span class="lineNum">     338 </span>            :     // evolve, also see next flag,</a>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         16 :     {&quot;print-stack-traces&quot;, NULL, &quot;&quot;},</span></a>
+<a name="340"><span class="lineNum">     340 </span>            :     // At every ileave point ESBMC stops and asks the user what thread to</a>
+<a name="341"><span class="lineNum">     341 </span>            :     // transition to. Useful again for trying to replicate a particular context</a>
+<a name="342"><span class="lineNum">     342 </span>            :     // switch order, or quickly explore what's reachable.</a>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">         16 :     {&quot;interactive-ileaves&quot;, NULL, &quot;&quot;},</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">         16 :     {&quot;goto-fuzz&quot;, NULL, &quot;&quot;},</span></a>
+<a name="345"><span class="lineNum">     345 </span><span class="lineCov">         16 :     {&quot;goto-libfuzz&quot;, NULL, &quot;&quot;}}},</span></a>
+<a name="346"><span class="lineNum">     346 </span><span class="lineCov">         16 :   {&quot;end&quot;, {{&quot;&quot;, NULL, &quot;end of options&quot;}}},</span></a>
+<a name="347"><span class="lineNum">     347 </span><span class="lineCov">         32 :   {&quot;Hidden Options&quot;,</span></a>
+<a name="348"><span class="lineNum">     348 </span><span class="lineCov">         16 :    {{&quot;depth&quot;, boost::program_options::value&lt;int&gt;(), &quot;instruction&quot;},</span></a>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">         16 :     {&quot;explain,h&quot;, NULL, &quot;&quot;}}}};</span></a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -11,24 +11,19 @@ using engine = std::mt19937;
 class goto_mutationt
 {
 public:
-  goto_mutationt(uint8_t *Data, size_t Size, goto_functionst &func)
+  goto_mutationt(uint8_t *Data, size_t Size,goto_functionst &func)
   {
     this->Data = Data;
     this->Size = Size;
-    this->func = func;
     this->seeds = NULL;
-    getMain(this->m_it);
+    getMain(this->m_it,func);
   }
-  bool mutateSequence(messaget &msg);
-  bool mutateNonSequence(messaget &msg);
-  void getMain(goto_functionst::function_mapt::iterator &m_it);
-  static void
-  getMain(goto_functionst::function_mapt::iterator &m_it, goto_functionst func)
-  {
-    m_it = func.function_map.find("c:@F@main");
-  }
+  bool mutateSequence(messaget &msg,goto_functionst &func);
+  bool mutateNonSequence(messaget &msg,goto_functionst &func);
+  void getMain(goto_functionst::function_mapt::iterator &m_it, goto_functionst& func);
 
   void setSeeds(goto_programt &mmain);
+  void setPseudoSeeds(goto_programt &mmain);
   bool hasSeeds();
   static void
   output(goto_programt &mmain, std::ostringstream &os, messaget &msg)
@@ -42,8 +37,7 @@ public:
   goto_functionst::function_mapt::iterator m_it ;
 
 private:
-  uint8_t *Data;
+  uint8_t *Data=NULL;
   size_t Size;
-  goto_functionst func;
   uint16_t *seeds;
 };

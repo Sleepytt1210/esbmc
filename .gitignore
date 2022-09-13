@@ -10,3 +10,5 @@ out
 .vscode
 
 tags
+fuzz_data/
+src/coverage.info

@@ -37,6 +37,7 @@ void goto_mutationt::setPseudoSeeds(goto_programt &mmain)
     printf("%d", d);
   }
   seeds = data;
+  printf("\n");
 }
 
 template <typename T>
@@ -45,7 +46,8 @@ void Knuth_Shuffle(std::vector<T> &arr, uint16_t *seeds)
   int len = arr.size();
   for(int i = len - 1; i >= 0; i--)
   {
-    std::swap(*arr[i], *arr[seeds[i] % (i + 1)]);
+    //std::swap(*arr[i], *arr[seeds[i] % (i + 1)]);
+    (*arr[i]).swap(*arr[seeds[i] % (i + 1)]);
   }
 }
 

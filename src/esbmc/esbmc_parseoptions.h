@@ -18,6 +18,9 @@ Author: Daniel Kroening, kroening@kroening.com
 
 extern const struct group_opt_templ all_cmd_options[];
 
+extern "C" void  __gcov_dump();
+extern "C" void  __gcov_reset();
+
 class esbmc_parseoptionst : public parseoptions_baset, public language_uit
 {
 public:

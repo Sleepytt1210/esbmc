@@ -44,11 +44,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
   uint8_t *t = (uint8_t *)Data;
   goto_mutationt mutation(t, Size, (*ptr).goto_functions);
   if(mutation.m_it != func.function_map.end())
-  {
+  { 
     goto_programt &mmain = mutation.m_it->second.body;
     int program_len = mmain.instructions.size();
     if(program_len + 1 >= Size)
-      return 0;
+      return -1; // Rejecting unwanted inputs
   }
   mutation.mutateSequence(msg, (*ptr).goto_functions);
   mutation.mutateNonSequence(msg, (*ptr).goto_functions);
@@ -73,12 +73,12 @@ int main(int argc, const char **argv)
     int aargc = 6;
     char **aargv = new char *[6];
     aargv[0] = "./esbmc";
-    aargv[1] = "-max_total_time=30";
-    aargv[2] = "-max_len=1000000";
-    aargv[3] = "-seed=1";
-    aargv[4] = "corpus";
-    aargv[5] = "old_corpus";
+    aargv[1] = "-max_total_time=60";
 
+    aargv[2] = "-seed=1";
+    aargv[3] = "corpus";
+    aargv[4] = "old_corpus";
+    aargv[5] = "-runs=10000";
     LLVMFuzzerRunDriver(&aargc, &aargv, LLVMFuzzerTestOneInput);
   }
 }

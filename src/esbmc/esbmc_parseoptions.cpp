@@ -102,6 +102,9 @@ void timeout_handler(int)
   // aexit and attempt to free some memory. That doesn't really make sense to
   // occur on exit, but more importantly doesn't mix well with signal handlers,
   // and results in the allocator locking against itself. So use _exit instead
+  //_exit(1);、
+   __gcov_dump();
+   __gcov_reset();
   _exit(1);
 }
 #endif
@@ -521,7 +524,8 @@ int esbmc_parseoptionst::doit_fuzz()
   //   msg.error("fail to generate goto binary file");
   //   abort();
   // };
-
+  optionst opts;
+  get_command_line_options(opts);
   if(cmdline.isset("termination"))
     return doit_termination();
 
@@ -532,13 +536,35 @@ int esbmc_parseoptionst::doit_fuzz()
     return doit_falsification();
 
   if(cmdline.isset("k-induction"))
-    return doit_k_induction();
+  {
+    // Get max number of iterations
+    BigInt max_k_step = cmdline.isset("unlimited-k-steps")
+                          ? UINT_MAX
+                          : strtoul(cmdline.getval("max-k-step"), nullptr, 10);
+
+    // Get the increment
+    unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
+
+    for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+    {
+      if(do_base_case(opts, goto_functions, k_step))
+        return true;
+
+      if(!do_forward_condition(opts, goto_functions, k_step))
+        return false;
+
+      if(!do_inductive_step(opts, goto_functions, k_step))
+        return false;
+    }
+
+    msg.status("Unable to prove or falsify the program, giving up.");
+    msg.status("VERIFICATION UNKNOWN");
+
+    return 0;
+  }
 
   if(cmdline.isset("k-induction-parallel"))
     return doit_k_induction_parallel();
-
-  optionst opts;
-  get_command_line_options(opts);
 
   bmct bmc(goto_functions, opts, context, msg);
 

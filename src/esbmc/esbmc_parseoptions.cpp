@@ -102,9 +102,21 @@ void timeout_handler(int)
   // aexit and attempt to free some memory. That doesn't really make sense to
   // occur on exit, but more importantly doesn't mix well with signal handlers,
   // and results in the allocator locking against itself. So use _exit instead
-  //_exit(1);、
-   __gcov_dump();
-   __gcov_reset();
+  _exit(1);
+}
+#endif
+
+#ifndef _WIN32
+void timeout_handler2(int)
+{
+  default_message msg;
+  msg.error("Fuzzer Timed out");
+  // Unfortunately some highly useful pieces of code hook themselves into
+  // aexit and attempt to free some memory. That doesn't really make sense to
+  // occur on exit, but more importantly doesn't mix well with signal handlers,
+  // and results in the allocator locking against itself. So use _exit instead
+  __gcov_dump();
+  __gcov_reset();
   _exit(1);
 }
 #endif
@@ -375,7 +387,14 @@ void esbmc_parseoptionst::get_command_line_options(optionst &options)
 #else
     const char *time = cmdline.getval("timeout");
     uint64_t timeout = read_time_spec(time);
-    signal(SIGALRM, timeout_handler);
+    if(cmdline.isset("goto-fuzz"))
+    {
+      signal(SIGALRM, timeout_handler2);
+    }
+    else
+    {
+      signal(SIGALRM, timeout_handler);
+    }
     alarm(timeout);
 #endif
   }
@@ -518,6 +537,9 @@ int esbmc_parseoptionst::doit()
 
 int esbmc_parseoptionst::doit_fuzz()
 {
+  // We currently do output the intermediate Goto file 
+  // because this process is too slow
+
   // std::fstream oss("fuzz.goto");
   // if(write_goto_binary(oss, context, goto_functions))
   // {
@@ -527,13 +549,83 @@ int esbmc_parseoptionst::doit_fuzz()
   optionst opts;
   get_command_line_options(opts);
   if(cmdline.isset("termination"))
-    return doit_termination();
+  {
+    BigInt max_k_step = cmdline.isset("unlimited-k-steps")
+                          ? UINT_MAX
+                          : strtoul(cmdline.getval("max-k-step"), nullptr, 10);
+
+    // Get the increment
+    unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
+
+    for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+    {
+      if(!do_forward_condition(opts, goto_functions, k_step))
+        return false;
+    }
+  }
 
   if(cmdline.isset("incremental-bmc"))
-    return doit_incremental();
+  {
+    if(cmdline.isset("show-claims"))
+    {
+      const namespacet ns(context);
+      std::ostringstream oss;
+      show_claims(ns, goto_functions, msg);
+      return 0;
+    }
+
+    if(set_claims(goto_functions))
+      return 7;
+
+    // Get max number of iterations
+    BigInt max_k_step = cmdline.isset("unlimited-k-steps")
+                          ? UINT_MAX
+                          : strtoul(cmdline.getval("max-k-step"), nullptr, 10);
+
+    // Get the increment
+    unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
+
+    for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+    {
+      if(do_base_case(opts, goto_functions, k_step))
+        return true;
+
+      if(!do_forward_condition(opts, goto_functions, k_step))
+        return false;
+    }
+
+    msg.status("Unable to prove or falsify the program, giving up.");
+    msg.status("VERIFICATION UNKNOWN");
+
+    return 0;
+  }
 
   if(cmdline.isset("falsification"))
-    return doit_falsification();
+  {
+    if(cmdline.isset("show-claims"))
+    {
+      const namespacet ns(context);
+      show_claims(ns, goto_functions, msg);
+      return 0;
+    }
+
+    if(set_claims(goto_functions))
+      return 7;
+
+    // Get max number of iterations
+    BigInt max_k_step = cmdline.isset("unlimited-k-steps")
+                          ? UINT_MAX
+                          : strtoul(cmdline.getval("max-k-step"), nullptr, 10);
+
+    // Get the increment
+    unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
+
+    for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+    {
+      if(do_base_case(opts, goto_functions, k_step))
+        return true;
+    }
+  }
 
   if(cmdline.isset("k-induction"))
   {
@@ -1682,7 +1774,8 @@ bool esbmc_parseoptionst::process_goto_program(
       goto_contractor(goto_functions, msg);
 #else
       msg.error(
-        "Current build does not support contractors. If ibex is installed, add "
+        "Current build does not support contractors. If ibex is installed, "
+        "add "
         "-DENABLE_IBEX = ON");
       abort();
 #endif
@@ -1767,16 +1860,11 @@ bool esbmc_parseoptionst::process_goto_program(
       return true;
     }
 
-    if(cmdline.isset("goto-fuzz"))
+    if(cmdline.isset("goto-fuzz-corpus"))
     {
       goto_mutationt mutation(NULL, 0, goto_functions);
       mutation.mutateSequence(msg, goto_functions);
       mutation.mutateNonSequence(msg, goto_functions);
-      //return true;
-    }
-    if(cmdline.isset("goto-libfuzz"))
-    {
-      ;
     }
 
     // show it?

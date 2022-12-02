@@ -31,6 +31,7 @@ public:
     : parseoptions_baset(all_cmd_options, argc, argv, msg),
       language_uit(cmdline, msg)
   {
+    enable_goto_fuzz=false;
   }
 
   ~esbmc_parseoptionst()

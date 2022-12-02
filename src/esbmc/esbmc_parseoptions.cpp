@@ -352,6 +352,12 @@ void esbmc_parseoptionst::get_command_line_options(optionst &options)
     }
   }
 
+  if(cmdline.isset("goto-fuzz-maxtime"))
+    options.set_option(
+      "goto-fuzz-maxtime", cmdline.getval("goto-fuzz-maxtime"));
+  else
+    options.set_option("goto-fuzz-maxtime", 180);
+
   if(cmdline.isset("base-case"))
   {
     options.set_option("base-case", true);

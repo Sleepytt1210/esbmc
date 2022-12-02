@@ -26,7 +26,7 @@ Author: Lucas Cordeiro, lcc08r@ecs.soton.ac.uk
 #include <langapi/mode.h>
 #include <util/message/default_message.h>
 #include <irep2/irep2.h>
-#include <cstdlib> 
+#include <cstdlib>
 
 // static esbmc_parseoptionst *ptr = NULL;
 // static goto_functionst func;
@@ -37,11 +37,10 @@ int main(int argc, const char **argv)
   esbmc_parseoptionst parseoptions(argc, argv, msg);
   parseoptions.main();
 
-  if(parseoptions.cmdline.isset("goto-fuzz")) // enable GotoFuzz
+  if(parseoptions.enable_goto_fuzz)
   {
     goto_fuzz fuzzer;
-    fuzzer.fuzz_timeout = parseoptions.ftimeout;
-
+    fuzzer.fuzz_timeout = parseoptions.gf_maxtime;
     fuzzer.fuzz_init(&parseoptions);
     LLVMFuzzerRunDriver(&fuzzer.fargc, &fuzzer.fargv, LLVMFuzzerTestOneInput);
   }

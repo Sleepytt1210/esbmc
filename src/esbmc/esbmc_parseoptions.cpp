@@ -1860,20 +1860,20 @@ bool esbmc_parseoptionst::process_goto_program(
       return true;
     }
 
-    if(cmdline.isset("goto-fuzz-prng"))
-    {
-      goto_mutationt mutation(NULL, 0, goto_functions);
-      mutation.mutateSequence(msg, goto_functions);
-      mutation.mutateNonSequence(msg, goto_functions);
-    }
-
     if(cmdline.isset("goto-fuzz"))
     {
-      ftimeout = atoi(cmdline.getval("goto-fuzz"));
+      enable_goto_fuzz = true;
     }
     else
     {
-      ftimeout = 180;
+      enable_goto_fuzz = false;
+    }
+
+    if(cmdline.isset("goto-fuzz-maxtime"))
+    {
+      gf_maxtime = atoi(cmdline.getval("goto-fuzz-maxtime"));
+      if(gf_maxtime <= 30)
+        gf_maxtime = 30;
     }
 
     // show it?

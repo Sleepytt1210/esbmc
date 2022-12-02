@@ -1,6 +1,6 @@
 ## Building GotoFuzz
 
-- GotoFuzz builds as an extention to ESBMC. First, the ESBMC dependencies need to be installed. The instruction can be found [here](https://github.com/esbmc/esbmc/blob/master/BUILDING.md). Next, several flags need to be set when building:
+- GotoFuzz builds as an extention to ESBMC. First, the ESBMC dependencies need to be installed. The instruction can be found [here](**https://github.com/esbmc/esbmc/blob/master/BUILDING.md**). Next, several flags need to be set when building:
     - set clang as complier: `-DCMAKE_C_COMPILER=$PWD/../../clang11/bin/clang -DCMAKE_CXX_COMPILER=$PWD/../../clang11/bin/clang++`
     - enable "fuzz" sanitizer mode: `-DCMAKE_BUILD_TYPE=Sanitizer -DSANITIZER_TYPE=FUZZ`
     - collect coverage information: `-DENABLE_COVERAGE=Off`
@@ -13,7 +13,7 @@ cmake .. -GNinja -DCMAKE_C_COMPILER=$PWD/../../clang11/bin/clang -DCMAKE_CXX_COM
 
 - To run GotoFuzz, add `--gotofuzz` option to the verification command. Smaller files with more complex language features will give better results. 
 - In general, there are two options relative to GotoFuzz:
-  - `goto-fuzz-prng`
+  - `goto-fuzz-maxtime`
   - `goto-fuzz`
 - example command:
 ```sh

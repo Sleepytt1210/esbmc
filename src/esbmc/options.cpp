@@ -341,10 +341,10 @@ const struct group_opt_templ all_cmd_options[] = {
     // transition to. Useful again for trying to replicate a particular context
     // switch order, or quickly explore what's reachable.
     {"interactive-ileaves", NULL, ""},
-    {"goto-fuzz-prng", NULL, "genertate pseudorandom number for GotoFuzz"},
-    {"goto-fuzz",
-     boost::program_options::value<int>()->value_name("t"),
-     "run GotoFuzz for t seconds"}}},
+    {"goto-fuzz-maxtime",
+     boost::program_options::value<int>()->default_value(180)->value_name("t"),
+     "run GotoFuzz for t seconds (default is 180 and minimum is 30)"},
+    {"goto-fuzz", NULL, "enable GotoFuzz"}}},
   {"end", {{"", NULL, "end of options"}}},
   {"Hidden Options",
    {{"depth", boost::program_options::value<int>(), "instruction"},

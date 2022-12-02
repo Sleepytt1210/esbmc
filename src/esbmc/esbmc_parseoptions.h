@@ -104,8 +104,8 @@ private:
 
 public:
   goto_functionst goto_functions;
-  int ftimeout;
-  bool fflag;
+  int gf_maxtime;
+  bool enable_goto_fuzz;
 };
 
 #endif

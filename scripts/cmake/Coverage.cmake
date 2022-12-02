@@ -1,5 +1,5 @@
 if(ENABLE_COVERAGE)
-    if(NOT CMAKE_COMPILER_IS_GNUCXX)        
+    if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")        
         if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
             message(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
         endif()
@@ -19,6 +19,6 @@ if(ENABLE_COVERAGE)
 
         
     else()
-        message(FATAL_ERROR "Code coverage requires GCC. Aborting.")
+        message(FATAL_ERROR "Code coverage requires GCC or Clang. Aborting.")
     endif()
 endif()

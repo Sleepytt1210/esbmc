@@ -104,6 +104,8 @@ private:
 
 public:
   goto_functionst goto_functions;
+  int ftimeout;
+  bool fflag;
 };
 
 #endif

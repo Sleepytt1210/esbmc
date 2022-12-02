@@ -386,7 +386,7 @@ void esbmc_parseoptionst::get_command_line_options(optionst &options)
     abort();
 #else
     const char *time = cmdline.getval("timeout");
-    uint64_t timeout = read_time_spec(time);
+    uint64_t force_timeout = read_time_spec(time);
     if(cmdline.isset("goto-fuzz"))
     {
       signal(SIGALRM, timeout_handler2);
@@ -395,7 +395,7 @@ void esbmc_parseoptionst::get_command_line_options(optionst &options)
     {
       signal(SIGALRM, timeout_handler);
     }
-    alarm(timeout);
+    alarm(force_timeout);
 #endif
   }
 
@@ -537,7 +537,7 @@ int esbmc_parseoptionst::doit()
 
 int esbmc_parseoptionst::doit_fuzz()
 {
-  // We currently do output the intermediate Goto file 
+  // We currently do output the intermediate Goto file
   // because this process is too slow
 
   // std::fstream oss("fuzz.goto");
@@ -1860,11 +1860,20 @@ bool esbmc_parseoptionst::process_goto_program(
       return true;
     }
 
-    if(cmdline.isset("goto-fuzz-corpus"))
+    if(cmdline.isset("goto-fuzz-prng"))
     {
       goto_mutationt mutation(NULL, 0, goto_functions);
       mutation.mutateSequence(msg, goto_functions);
       mutation.mutateNonSequence(msg, goto_functions);
+    }
+
+    if(cmdline.isset("goto-fuzz"))
+    {
+      ftimeout = atoi(cmdline.getval("goto-fuzz"));
+    }
+    else
+    {
+      ftimeout = 180;
     }
 
     // show it?

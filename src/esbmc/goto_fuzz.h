@@ -7,7 +7,7 @@
 #include <irep2/irep2.h>
 #include <goto-programs/goto_mutation.h>
 
-static esbmc_parseoptionst *goto_ptr=NULL;
+static esbmc_parseoptionst *goto_ptr = NULL;
 static goto_functionst roll_back_func;
 
 extern "C" int LLVMFuzzerRunDriver(
@@ -28,4 +28,5 @@ public:
 
   int fargc;
   char **fargv;
+  int fuzz_timeout;
 };

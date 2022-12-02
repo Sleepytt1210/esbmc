@@ -1,14 +1,15 @@
 #include <goto-programs/goto_mutation.h>
 
-void goto_mutationt::createCorpusDir()
+int cnt = 0;
+
+void goto_mutationt::createDir(std::string dir)
 {
-  std::string dir = "./old_corpus";
   if(access(dir.c_str(), 0) == -1)
   {
 #ifdef WIN32
     int flag = mkdir(dir.c_str());
 #else
-    int flag = mkdir(dir.c_str(), S_IRWXU); 
+    int flag = mkdir(dir.c_str(), S_IRWXU);
 #endif
     if(flag != 0)
     {
@@ -41,8 +42,8 @@ void goto_mutationt::setSeeds(goto_programt &mmain)
 
 void goto_mutationt::setPseudoSeeds(goto_programt &mmain)
 {
-  createCorpusDir();
-  std::string prefix="old_corpus/";
+  createDir("seeds");
+  createDir("corpus");
 
   int program_len = mmain.instructions.size();
   uint16_t data[program_len];
@@ -50,17 +51,15 @@ void goto_mutationt::setPseudoSeeds(goto_programt &mmain)
   const u32 seed = os_seed();
 
   engine generator(seed);
-  std::ofstream corpus(prefix+std::to_string(seed), std::ios::out);
+  std::ofstream prn("seeds/" + std::to_string(cnt++), std::ios::out);
   std::uniform_int_distribution<u32> distribute(0, program_len - 1);
   for(auto d : data)
   {
     d = abs(uint16_t(distribute(generator)));
-    corpus<<d;
-    printf("%d", d);
+    prn << d;
   }
   seeds = data;
-  corpus.close();
-  printf("\n");
+  prn.close();
 }
 
 template <typename T>

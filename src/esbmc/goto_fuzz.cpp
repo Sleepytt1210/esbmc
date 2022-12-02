@@ -22,25 +22,28 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
   return 0;
 }
 
-void goto_fuzz::fuzz_init(esbmc_parseoptionst *parseoptions)
+void goto_fuzz::fuzz_init(
+  esbmc_parseoptionst *parseoptions)
 {
   goto_ptr = parseoptions;
   roll_back_func = (*parseoptions).goto_functions;
+  char str[100];
+  sprintf(str,"-max_total_time=%d",fuzz_timeout);
+  printf("str %s",str);
   fargc = 5;
   fargv = new char *[5];
   fargv[0] = "./esbmc";
   fargv[1] = "-seed=1";
   fargv[2] = "corpus";
-  fargv[3] = "old_corpus";
-  fargv[4] = "-max_total_time=180";
-  // fargv[5] = "-runs=10000";
+  fargv[3] = "seeds";
+  fargv[4] = str;
 
-  int corpus_num = 10;
+  int seeds_num = 10;
   messaget msg;
-  for(int i = 0; i < corpus_num; i++)
+  for(int i = 0; i < seeds_num; i++)
   {
     (*parseoptions).goto_functions = roll_back_func;
-    // execute "goto-fuzz" option
+
     goto_mutationt mutation(NULL, 0, (*parseoptions).goto_functions);
     mutation.mutateSequence(msg, (*parseoptions).goto_functions);
     mutation.mutateNonSequence(msg, (*parseoptions).goto_functions);

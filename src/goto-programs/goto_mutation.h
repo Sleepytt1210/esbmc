@@ -40,7 +40,7 @@ public:
   void setSeeds(goto_programt &mmain);
   void setPseudoSeeds(goto_programt &mmain);
   bool hasSeeds();
-  void createCorpusDir();
+  void createDir(std::string dir);
   static void
   output(goto_programt &mmain, std::ostringstream &os, messaget &msg)
   {

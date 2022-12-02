@@ -4,7 +4,7 @@
 
 if(CMAKE_BUILD_TYPE STREQUAL "Sanitizer")
     message(STATUS "Sanitizer Mode")
-    set(SANITIZER_TYPE "FUZZ" CACHE
+    set(SANITIZER_TYPE "ASAN" CACHE
             STRING "Choose the sanitizer to use.")
 
     set_property(CACHE SANITIZER_TYPE PROPERTY STRINGS

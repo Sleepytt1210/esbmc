@@ -778,14 +778,20 @@ bool solidity_convertert::get_statement(
     // 2. get return value
     code_returnt ret_expr;
     const nlohmann::json &rtn_expr = stmt["expression"];
-    // wrap it in an ImplicitCastExpr to convert LValue to RValue
-    nlohmann::json implicit_cast_expr =
-      make_implicit_cast_expr(rtn_expr, "LValueToRValue");
 
     exprt val;
-    if(get_expr(implicit_cast_expr, val))
-      return true;
-
+    // wrap it in an ImplicitCastExpr to convert LValue to RValue if it has a referencedDeclaration (if it refers to a parameter)
+    // Otherwise, it could be a literal type
+    if(stmt["expression"].contains("referencedDeclaration"))
+    {
+      if(get_expr(make_implicit_cast_expr(rtn_expr, "LValueToRValue"), val))
+        return true;
+    }
+    else
+    {
+      if(get_expr(rtn_expr, rtn_expr["typeDescriptions"], val))
+        return true;
+    }
     solidity_gen_typecast(ns, val, return_type);
     ret_expr.return_value() = val;
 

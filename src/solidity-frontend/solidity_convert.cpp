@@ -1185,27 +1185,13 @@ bool solidity_convertert::get_expr(
     expr.dump(4, ' ', false, nlohmann::detail::error_handler_t::strict).c_str();
     const nlohmann::json &callee_expr_json = expr["expression"];
 
-    // exprt callee_expr;
-    // if(get_expr(callee_expr_json, callee_expr))
-    //   return true;
-
-    // // 2. Get type
-    // // Need to "decrypt" the typeDescriptions and manually make a typeDescription
-    // nlohmann::json callee_rtn_type =
-    //   make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
-    // typet type;
-    // if(get_type_description(callee_rtn_type, type))
-    //   return true;
+    // Function symbol id is c:@C@referenced_function_contract_name@F@function_name#referenced_function_id
+    // Using referencedDeclaration will point us to the original declared function. This works even for inherited function and overrided functions. 
+  
+    const nlohmann::json &decl = find_decl_ref(callee_expr_json["referencedDeclaration"]);
+    const int contract_id = decl["scope"].get<std::uint16_t>();
 
     std::string ref_contract_name;
-    std::string caller_type_id = callee_expr_json["expression"]["typeDescriptions"]["typeIdentifier"].get<std::string>();
-    size_t pos = caller_type_id.find_last_of('$');
-    std::string contract_id_str = caller_type_id.substr(pos+1);
-    int contract_id = std::stoi(contract_id_str);
-  
-    if(!contract_id)
-      throw "cannot get contract id from type identifier " + caller_type_id;
-  
     get_contract_name(contract_id, ref_contract_name);
 
     // obtain type info from symbol table

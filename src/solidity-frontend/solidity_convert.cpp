@@ -23,6 +23,7 @@ solidity_convertert::solidity_convertert(
     sol_func(_sol_func),
     contract_path(_contract_path),
     global_scope_id(0),
+    current_contractName(""),
     current_scope_var_num(1),
     current_functionDecl(nullptr),
     current_forStmt(nullptr),
@@ -147,7 +148,7 @@ bool solidity_convertert::get_decl(
   }
   case SolidityGrammar::ContractBodyElementT::FunctionDef:
   {
-    return get_function_definition(ast_node); // rule function-definition
+    return get_function_definition(ast_node, new_expr); // rule function-definition
   }
   default:
   {
@@ -471,7 +472,8 @@ bool solidity_convertert::get_access_from_decl(
 }
 
 bool solidity_convertert::get_function_definition(
-  const nlohmann::json &ast_node)
+  const nlohmann::json &ast_node,
+  exprt &new_expr)
 {
   // For Solidity rule function-definition:
   // Order matters! do not change!
@@ -566,6 +568,7 @@ bool solidity_convertert::get_function_definition(
   }
 
   added_symbol.type = type;
+  new_expr.type() = type;
 
   // 12. Convert body and embed the body into the same symbol
   if(ast_node.contains("body"))
@@ -1161,9 +1164,21 @@ bool solidity_convertert::get_expr(
     assert(expr.contains("expression"));
     const nlohmann::json &callee_expr_json = expr["expression"];
 
+    std::string ref_contract_name;
+    std::string caller_type_id = callee_expr_json["expression"]["typeDescriptions"]["typeIdentifier"].get<std::string>();
+    size_t pos = caller_type_id.find_last_of('$');
+    std::string contract_id_str = caller_type_id.substr(pos+1);
+    int contract_id = std::stoi(contract_id_str);
+  
+    if(!contract_id)
+      throw "cannot get contract id from type identifier " + caller_type_id;
+  
+    get_contract_name(contract_id, ref_contract_name);
+
     std::string name, id;
     name = callee_expr_json["memberName"];
-    id = name;
+    id = "c:@C@" + ref_contract_name + "@F@" + name + "#";
+
     if(context.find_symbol(id) == nullptr)
       return true;
 
@@ -2245,11 +2260,14 @@ void solidity_convertert::get_function_definition_name(
   // Follow the way in clang:
   //  - For function name, just use the ast_node["name"]
   // assume Solidity AST json object has "name" field, otherwise throws an exception in nlohmann::json
+  std::string contract_name;
+  get_contract_name(ast_node["scope"], contract_name);
+
   if(ast_node["kind"].get<std::string>() == "constructor")
-    get_contract_name(ast_node["scope"], name);
+    name = contract_name;
   else
     name = ast_node["name"].get<std::string>();
-  id = name;
+  id = "c:@C@" + contract_name + "@F@" + name + "#";
 }
 
 unsigned int solidity_convertert::add_offset(

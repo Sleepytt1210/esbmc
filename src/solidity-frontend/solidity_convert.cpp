@@ -792,7 +792,12 @@ bool solidity_convertert::get_statement(
     }
     else
     {
-      if(get_expr(rtn_expr, rtn_expr["typeDescriptions"], val))
+      // use typeDescriptions of return parameters instead of literal to get full type.
+
+      const nlohmann::json &rtn_prm = (*current_functionDecl)["returnParameters"];
+      // the functionReturnParameters field should point to current function's return parameter. 
+      assert(stmt["functionReturnParameters"].get<std::int16_t>() == rtn_prm["id"].get<std::int16_t>());
+      if(get_expr(rtn_expr, rtn_prm["parameters"].at(0)["typeName"]["typeDescriptions"], val))
         return true;
     }
     solidity_gen_typecast(ns, val, return_type);
@@ -1162,7 +1167,20 @@ bool solidity_convertert::get_expr(
   case SolidityGrammar::ExpressionT::MemberCallClass:
   {
     assert(expr.contains("expression"));
+    expr.dump(4, ' ', false, nlohmann::detail::error_handler_t::strict).c_str();
     const nlohmann::json &callee_expr_json = expr["expression"];
+
+    // exprt callee_expr;
+    // if(get_expr(callee_expr_json, callee_expr))
+    //   return true;
+
+    // // 2. Get type
+    // // Need to "decrypt" the typeDescriptions and manually make a typeDescription
+    // nlohmann::json callee_rtn_type =
+    //   make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
+    // typet type;
+    // if(get_type_description(callee_rtn_type, type))
+    //   return true;
 
     std::string ref_contract_name;
     std::string caller_type_id = callee_expr_json["expression"]["typeDescriptions"]["typeIdentifier"].get<std::string>();
@@ -1189,6 +1207,7 @@ bool solidity_convertert::get_expr(
     new_expr.identifier(id);
     new_expr.cmt_lvalue(true);
     new_expr.name(name);
+    new_expr.set("#member_name", prefix + ref_contract_name);
 
     side_effect_expr_function_callt call;
     call.function() = new_expr;

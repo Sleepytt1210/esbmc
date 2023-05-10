@@ -771,7 +771,6 @@ bool solidity_convertert::get_statement(
     //  a). It's "return <expr>;" not "return;"
     //  b). <expr> is pointing to a DeclRefExpr, we need to wrap it in an ImplicitCastExpr as a subexpr
     assert(stmt.contains("expression"));
-    assert(stmt["expression"].contains("referencedDeclaration"));
 
     typet return_type;
     if(get_type_description(
@@ -782,28 +781,32 @@ bool solidity_convertert::get_statement(
     code_returnt ret_expr;
     const nlohmann::json &rtn_expr = stmt["expression"];
 
-    exprt val;
-    // wrap it in an ImplicitCastExpr to convert LValue to RValue if it has a referencedDeclaration (if it refers to a parameter)
-    // Otherwise, it could be a literal type
-    if(stmt["expression"].contains("referencedDeclaration"))
+    /* There could be case like
     {
-      if(get_expr(make_implicit_cast_expr(rtn_expr, "LValueToRValue"), val))
-        return true;
+    "expression": {
+        "kind": "number",
+        "nodeType": "Literal",
+        "typeDescriptions": {
+            "typeIdentifier": "t_rational_11_by_1",
+            "typeString": "int_const 11"
+        },
+        "value": "12345"
+    },
+    "nodeType": "Return",
     }
-    else
-    {
-      // use typeDescriptions of return parameters instead of literal to get full type.
+    Therefore, we need to pass the int_literal_type value.
+    */
 
-      const nlohmann::json &rtn_prm = (*current_functionDecl)["returnParameters"];
-      // the functionReturnParameters field should point to current function's return parameter. 
-      assert(stmt["functionReturnParameters"].get<std::int16_t>() == rtn_prm["id"].get<std::int16_t>());
-      if(get_expr(rtn_expr, rtn_prm["parameters"].at(0)["typeName"]["typeDescriptions"], val))
-        return true;
-    }
+    exprt val;
+    if(get_expr(
+         implicit_cast_expr, stmt["expression"]["typeDescriptions"], val))
+      return true;
+
     solidity_gen_typecast(ns, val, return_type);
     ret_expr.return_value() = val;
 
     new_expr = ret_expr;
+
     break;
   }
   case SolidityGrammar::StatementT::ForStatement:
@@ -982,6 +985,15 @@ bool solidity_convertert::get_expr(
   {
     if(expr["referencedDeclaration"] > 0)
     {
+      // for Contract Type Identifier Only
+      if(
+        expr["typeDescriptions"]["typeString"].get<std::string>().find(
+          "contract") != std::string::npos)
+      {
+        // TODO
+        assert(!"we do not handle contract type identifier for now");
+      }
+
       // Soldity uses +ve odd numbers to refer to var or functions declared in the contract
       const nlohmann::json &decl = find_decl_ref(expr["referencedDeclaration"]);
 
@@ -1112,7 +1124,7 @@ bool solidity_convertert::get_expr(
   }
   case SolidityGrammar::ExpressionT::ImplicitCastExprClass:
   {
-    if(get_cast_expr(expr, new_expr))
+    if(get_cast_expr(expr, new_expr, int_literal_type))
       return true;
     break;
   }
@@ -1193,6 +1205,7 @@ bool solidity_convertert::get_expr(
   
     get_contract_name(contract_id, ref_contract_name);
 
+    // obtain type info from symbol table
     std::string name, id;
     name = callee_expr_json["memberName"];
     id = "c:@C@" + ref_contract_name + "@F@" + name + "#";
@@ -1209,9 +1222,17 @@ bool solidity_convertert::get_expr(
     new_expr.name(name);
     new_expr.set("#member_name", prefix + ref_contract_name);
 
+    // obtain the type of return value
+    // Need to "decrypt" the typeDescriptions and manually make a typeDescription
+    nlohmann::json callee_rtn_type =
+      make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
+    typet t;
+    if(get_type_description(callee_rtn_type, t))
+      return true;
+
     side_effect_expr_function_callt call;
     call.function() = new_expr;
-    call.type() = type;
+    call.type() = t;
 
     const nlohmann::json caller_expr_json =
       find_decl_ref(callee_expr_json["referencedDeclaration"]);
@@ -1658,11 +1679,12 @@ bool solidity_convertert::get_conditional_operator_expr(
 
 bool solidity_convertert::get_cast_expr(
   const nlohmann::json &cast_expr,
-  exprt &new_expr)
+  exprt &new_expr,
+  const nlohmann::json int_literal_type)
 {
   // 1. convert subexpr
   exprt expr;
-  if(get_expr(cast_expr["subExpr"], expr))
+  if(get_expr(cast_expr["subExpr"], int_literal_type, expr))
     return true;
 
   // 2. get type
@@ -1835,7 +1857,9 @@ bool solidity_convertert::get_type_description(
     // This part is for FunctionToPointer decay only
     assert(
       type_name["typeString"].get<std::string>().find("function") !=
-      std::string::npos);
+        std::string::npos ||
+      type_name["typeString"].get<std::string>().find("contract") !=
+        std::string::npos);
 
     // Since Solidity does not have this, first make a pointee
     nlohmann::json pointee = make_pointee_type(type_name);
@@ -2160,6 +2184,9 @@ bool solidity_convertert::get_elementary_type_name(
   }
   case SolidityGrammar::ElementaryTypeNameT::INT_LITERAL:
   {
+    // for int_const type
+    new_type = int_type();
+    new_type.set("#cpp_type", "signed_char");
     break;
   }
   case SolidityGrammar::ElementaryTypeNameT::BOOL:
@@ -2696,6 +2723,7 @@ nlohmann::json solidity_convertert::make_callexpr_return_type(
   const nlohmann::json &type_descrpt)
 {
   nlohmann::json adjusted_expr;
+
   if(
     type_descrpt["typeString"].get<std::string>().find("function") !=
     std::string::npos)
@@ -2722,7 +2750,7 @@ nlohmann::json solidity_convertert::make_callexpr_return_type(
         type_descrpt["typeString"].get<std::string>().find(
           "returns (contract") != std::string::npos)
       {
-        // TODO: Fix me
+        // TODO: Fix me. We treat contract as void
         auto j2 = R"(
             {
               "nodeType": "ParameterList",
@@ -2730,7 +2758,6 @@ nlohmann::json solidity_convertert::make_callexpr_return_type(
             }
           )"_json;
 
-        //adjusted_expr["returnParameters"] = j2;
         adjusted_expr = j2;
       }
       else

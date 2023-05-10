@@ -1211,7 +1211,7 @@ bool solidity_convertert::get_expr(
     // obtain type info from symbol table
     std::string name, id;
     name = callee_expr_json["memberName"];
-    id = "c:@C@" + ref_contract_name + "@F@" + name + "#";
+    id = "c:@C@" + ref_contract_name + "@F@" + name + "#" + i2string(callee_expr_json["referencedDeclaration"].get<std::int16_t>());
 
     if(context.find_symbol(id) == nullptr)
       return true;
@@ -2316,7 +2316,7 @@ void solidity_convertert::get_function_definition_name(
     name = contract_name;
   else
     name = ast_node["name"].get<std::string>();
-  id = "c:@C@" + contract_name + "@F@" + name + "#";
+  id = "c:@C@" + contract_name + "@F@" + name + "#" + i2string(ast_node["id"].get<std::int16_t>());
 }
 
 unsigned int solidity_convertert::add_offset(
@@ -2671,18 +2671,17 @@ solidity_convertert::make_pointee_type(const nlohmann::json &sub_expr)
       {
         // e.g. for typeString like:
         // "typeString": "function () returns (uint8)"
-        // TODO: currently we only assume one parameters
-        if(
-          sub_expr["typeString"].get<std::string>().find("returns (uint8)") !=
-          std::string::npos)
-        {
-          auto j2 = R"(
-              {
-                "typeIdentifier": "t_uint8",
-                "typeString": "uint8"
-              }
-            )"_json;
-          adjusted_expr["returnParameters"] = j2;
+        // use regex to capture the type and convert it to shorter form.
+        std::smatch matches;
+        std::regex e ("returns \\((\\w+)\\)");
+        std::string typeString = sub_expr["typeString"].get<std::string>();
+        if (std::regex_search(typeString, matches, e)) {
+          auto j2 = nlohmann::json::parse(R"({
+              "typeIdentifier": "t_)" + matches[1].str() + R"(",
+              "typeString": ")" + matches[1].str() + R"("
+            })"
+          );
+          adjusted_expr = j2;
         }
         else if(
           sub_expr["typeString"].get<std::string>().find("returns (contract") !=
@@ -2737,16 +2736,16 @@ nlohmann::json solidity_convertert::make_callexpr_return_type(
     {
       // e.g. for typeString like:
       // "typeString": "function () returns (uint8)"
-      if(
-        type_descrpt["typeString"].get<std::string>().find("returns (uint8)") !=
-        std::string::npos)
-      {
-        auto j2 = R"(
-              {
-                "typeIdentifier": "t_uint8",
-                "typeString": "uint8"
-              }
-            )"_json;
+      // use regex to capture the type and convert it to shorter form.
+      std::smatch matches;
+      std::regex e ("returns \\((\\w+)\\)");
+      std::string typeString = type_descrpt["typeString"].get<std::string>();
+      if (std::regex_search(typeString, matches, e)) {
+        auto j2 = nlohmann::json::parse(R"({
+            "typeIdentifier": "t_)" + matches[1].str() + R"(",
+            "typeString": ")" + matches[1].str() + R"("
+          })"
+        );
         adjusted_expr = j2;
       }
       else if(

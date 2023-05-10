@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.5.0;
 
-// Polymorphism of function with same name but different parameter type.
+// Methods overloading, contract_A.poly(-2) should call the poly(int8) while contract_A.poly(300) should call poly(uint16).
 contract A {
 
     function poly(uint16 b) public pure returns (uint16) {

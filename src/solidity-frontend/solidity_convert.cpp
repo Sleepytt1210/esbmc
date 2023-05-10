@@ -780,6 +780,9 @@ bool solidity_convertert::get_statement(
     // 2. get return value
     code_returnt ret_expr;
     const nlohmann::json &rtn_expr = stmt["expression"];
+    // wrap it in an ImplicitCastExpr to convert LValue to RValue
+    nlohmann::json implicit_cast_expr =
+      make_implicit_cast_expr(rtn_expr, "LValueToRValue");
 
     /* There could be case like
     {

@@ -1217,9 +1217,7 @@ bool solidity_convertert::get_expr(
     new_expr.set("#member_name", prefix + ref_contract_name);
 
     // obtain the type of return value
-    // Need to "decrypt" the typeDescriptions and manually make a typeDescription
-    // nlohmann::json callee_rtn_type =
-    //   make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
+    // It can be retrieved directly from the original function declaration
     typet t;
     if(get_type_description(caller_expr_json["returnParameters"], t))
       return true;

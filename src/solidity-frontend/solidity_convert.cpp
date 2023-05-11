@@ -293,6 +293,10 @@ bool solidity_convertert::get_var_decl(
                                     SolidityGrammar::Literal;
     if(expr_is_literal || (expr_is_un_op && subexpr_is_literal))
       int_literal_type = ast_node["typeDescriptions"];
+    else if(init_value["isInlineArray"] != nullptr && init_value["isInlineArray"]){
+      // TODO: make a function to convert inline array initialisation to index access assignment.
+      int_literal_type = make_array_elementary_type(init_value["typeDescriptions"]);
+    }
 
     exprt val;
     if(get_expr(init_value, int_literal_type, val))
@@ -1078,7 +1082,7 @@ bool solidity_convertert::get_expr(
     // now, and check its subexpression
     for(const auto &arg : expr["components"].items())
     {
-      if(get_expr(arg.value(), new_expr))
+      if(get_expr(arg.value(), int_literal_type, new_expr))
         return true;
     }
     break;
@@ -1188,7 +1192,8 @@ bool solidity_convertert::get_expr(
     // Function symbol id is c:@C@referenced_function_contract_name@F@function_name#referenced_function_id
     // Using referencedDeclaration will point us to the original declared function. This works even for inherited function and overrided functions. 
   
-    const nlohmann::json caller_expr_json = find_decl_ref(callee_expr_json["referencedDeclaration"]);
+    const int caller_id = callee_expr_json["referencedDeclaration"].get<std::uint16_t>();
+    const nlohmann::json caller_expr_json = find_decl_ref(caller_id);
     const int contract_id = caller_expr_json["scope"].get<std::uint16_t>();
 
     std::string ref_contract_name;
@@ -1197,7 +1202,7 @@ bool solidity_convertert::get_expr(
     // obtain type info from symbol table
     std::string name, id;
     name = callee_expr_json["memberName"];
-    id = "c:@C@" + ref_contract_name + "@F@" + name + "#" + i2string(callee_expr_json["referencedDeclaration"].get<std::int16_t>());
+    id = "c:@C@" + ref_contract_name + "@F@" + name + "#" + i2string(caller_id);
 
     if(context.find_symbol(id) == nullptr)
       return true;
@@ -1213,10 +1218,10 @@ bool solidity_convertert::get_expr(
 
     // obtain the type of return value
     // Need to "decrypt" the typeDescriptions and manually make a typeDescription
-    nlohmann::json callee_rtn_type =
-      make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
+    // nlohmann::json callee_rtn_type =
+    //   make_callexpr_return_type(callee_expr_json["typeDescriptions"]);
     typet t;
-    if(get_type_description(callee_rtn_type, t))
+    if(get_type_description(caller_expr_json["returnParameters"], t))
       return true;
 
     side_effect_expr_function_callt call;
@@ -2234,7 +2239,7 @@ bool solidity_convertert::get_parameter_list(
       1); // TODO: Fix me! assuming one return parameter
     const nlohmann::json &rtn_type =
       type_name["parameters"].at(0)["typeName"]["typeDescriptions"];
-    return get_elementary_type_name(rtn_type, new_type);
+    return get_type_description(rtn_type, new_type);
 
     break;
   }
